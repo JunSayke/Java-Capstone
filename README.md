@@ -1,5 +1,5 @@
 # Java-Capstone
 
-Captstone Prototypes
+Capstone Prototypes
 
 Shoutout to Sir Serato
