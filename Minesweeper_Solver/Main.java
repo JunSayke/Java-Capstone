@@ -13,7 +13,7 @@ public class Main {
             BufferedImage img = robot.createScreenCapture(new Rectangle(0, 0, 500, 500));
             ImageIO.write(img, "png", new File("screenshot.png"));
         } catch (AWTException | IOException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
         // TODO: Duplicate minesweeper board layout internally
 
