@@ -6,6 +6,22 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
+/*
+*   The idea behind the minesweeper solver is to duplicate the game internally
+*   and then calculate the probability through a simple algorithm for those
+*   unopened cells. However only those near to the opened cells are calculated.
+*
+*   In order to duplicate the game internally we have to do the following:
+*   1. Take a screenshot of the minesweeper board.
+*   2. Iterate the board from upper-left corner to the lower-right corner.
+*   3. For each iteration, check the state of the cell whether is it opened or not.
+*     If it is opened check for its content whether it is an empty, a bomb, a one and so on.
+*   4. After determining the state of the cell, assign a constant integer value to represent
+*     its state.
+*   5. Append each cell to the 2d array until we finished duplicating all cells from the
+*     minesweeper game board.
+*/
+
 public class Debugging {
     public static void main(String[] args) throws AWTException, IOException {
 
@@ -19,7 +35,7 @@ public class Debugging {
             e.printStackTrace();
         }
 */
-        // CONVERSATION FROM RGB int TO standard RGB
+        // THIS IS HOW TO CONVERT AN RGB INT TO A STANDARD RGB
 /*
         Color c = new Color(-12105399, true);
         System.out.println(c.getRed());
@@ -27,7 +43,7 @@ public class Debugging {
         System.out.println(c.getBlue());
         System.out.println(c.getAlpha());
 */
-        // GET MOUSE COORDINATES
+        // THIS IS HOW TO GET THE MOUSE POINTER COORDINATES RELATIVE TO THE SCREEN COORDINATES
 /*
         int x = MouseInfo.getPointerInfo().getLocation().x;
         int y = MouseInfo.getPointerInfo().getLocation().y;
@@ -37,6 +53,15 @@ public class Debugging {
                 x = MouseInfo.getPointerInfo().getLocation().x;
                 y = MouseInfo.getPointerInfo().getLocation().y;
             }
+        }
+*/
+        // THIS IS HOW TO GET THE PIXELS FROM AN IMAGE IN THE FORM OF RGB INT
+/*
+        BufferedImage image = ImageIO.read(new File("screenshot.png"));
+        // FROM LEFT TO RIGHT
+        for (int i = 0; i < image.getWidth(); i++) {
+            // ONLY THE TOPMOST PIXELS
+            System.out.print(image.getRGB(i, 0) + ", ");
         }
 */
     }
