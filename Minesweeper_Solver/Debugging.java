@@ -18,51 +18,68 @@ import java.io.IOException;
 *     If it is opened check for its content whether it is an empty, a bomb, a one and so on.
 *   4. After determining the state of the cell, assign a constant integer value to represent
 *     its state.
-*   5. Append each cell to the 2d array until we finished duplicating all cells from the
-*     minesweeper game board.
+*   5. Append each cell to the 2d array until we are finished duplicating all cells internally
+*     from the minesweeper game board itself.
 */
 
 public class Debugging {
-    public static void main(String[] args) throws AWTException, IOException {
+    public static void main(String[] args) throws IOException, AWTException {
+        screenshot(new Rectangle(0, 0, 10, 10));
+        BufferedImage image = ImageIO.read(new File("screenshot.png"));
+        enumeratePixels(image);
+        displayMouseCoordinates();
+        displayRGBInt(-12764367);
+        searchPixel(image, -12764367);
+    }
 
-        // THIS IS HOW TO TAKE A SCREENSHOT
-/*
+    // THIS IS HOW TO TAKE A SCREENSHOT
+    private static void screenshot(Rectangle rect) {
         try {
             Robot robot = new Robot();
-            BufferedImage img = robot.createScreenCapture(new Rectangle(0, 0, 500, 500));
+            BufferedImage img = robot.createScreenCapture(rect);
             ImageIO.write(img, "png", new File("screenshot.png"));
         } catch (AWTException | IOException e) {
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
-*/
-        // THIS IS HOW TO CONVERT AN RGB INT TO A STANDARD RGB
-/*
-        Color c = new Color(-12105399, true);
-        System.out.println(c.getRed());
-        System.out.println(c.getGreen());
-        System.out.println(c.getBlue());
-        System.out.println(c.getAlpha());
-*/
-        // THIS IS HOW TO GET THE MOUSE POINTER COORDINATES RELATIVE TO THE SCREEN COORDINATES
-/*
-        int x = MouseInfo.getPointerInfo().getLocation().x;
-        int y = MouseInfo.getPointerInfo().getLocation().y;
-        while (true) {
-            if (x != MouseInfo.getPointerInfo().getLocation().x || y != MouseInfo.getPointerInfo().getLocation().y) {
-                System.out.println("(" + MouseInfo.getPointerInfo().getLocation().x + ", " + MouseInfo.getPointerInfo().getLocation().y + ")");
-                x = MouseInfo.getPointerInfo().getLocation().x;
-                y = MouseInfo.getPointerInfo().getLocation().y;
+    }
+
+    // THIS IS HOW TO DISPLAY AN RGB INT IN A STANDARD RGB FORM
+    private static void displayRGBInt(int RGBInt) {
+        Color c = new Color(RGBInt, true);
+        System.out.println("Red: " + c.getRed() + ", Green: " + c.getGreen() + ", Blue: " + c.getBlue() + ", Opacity: " + c.getAlpha());
+    }
+
+    // THIS IS HOW TO DISPLAY THE MOUSE POINTER COORDINATES RELATIVE TO THE SCREEN COORDINATES
+    private static void displayMouseCoordinates() {
+        Point coordinates = MouseInfo.getPointerInfo().getLocation();
+        System.out.println("Mouse pointer coordinates: (" + coordinates.getX() + ", " + coordinates.getY() + ")");
+    }
+
+    // THIS IS HOW TO ENUMERATE ALL PIXEL FROM AN IMAGE IN THE FORM OF RGB INT
+    private static void enumeratePixels(BufferedImage image) {
+        for (int y = 0; y < image.getHeight(); y++) {
+            for (int x = 0; x < image.getWidth(); x++) {
+                if (x < image.getWidth() - 1) {
+                    System.out.print(image.getRGB(x, y) + ", ");
+                } else {
+                    System.out.println(image.getRGB(x, y));
+                }
             }
         }
-*/
-        // THIS IS HOW TO GET THE PIXELS FROM AN IMAGE IN THE FORM OF RGB INT
-/*
-        BufferedImage image = ImageIO.read(new File("screenshot.png"));
-        // FROM LEFT TO RIGHT
-        for (int i = 0; i < image.getWidth(); i++) {
-            // ONLY THE TOPMOST PIXELS
-            System.out.print(image.getRGB(i, 0) + ", ");
+    }
+
+    // THIS IS HOW TO SEARCH FOR A SPECIFIC PIXEL FROM AN IMAGE
+    private static void searchPixel(BufferedImage image, int targetColor) {
+        int width = image.getWidth();
+        int height = image.getHeight();
+
+        for (int y = 0; y < height; y++) {
+            for (int x = 0; x < width; x++) {
+                if (image.getRGB(x, y) == targetColor) {
+                    System.out.println("Pixel found at coordinates: (" + x + ", " + y + ")");
+                }
+            }
         }
-*/
+        System.out.println("Pixel cannot be found on the target image");
     }
 }
