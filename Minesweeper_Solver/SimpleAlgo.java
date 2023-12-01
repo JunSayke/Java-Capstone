@@ -18,7 +18,7 @@ public class SimpleAlgo {
      * @param x why are you reading this?
      * @param y you seriously should understand it
      */
-    /*private void solveSingle(int x, int y) {
+    private void solveSingle(int x, int y) {
         int countClosed = getSurroundingByType(x, y, State.BLOCK_CLOSED);
         if (countClosed == 0) return;
 
@@ -28,17 +28,14 @@ public class SimpleAlgo {
         // First: flag as much as we can
         if (countMinesAround == countClosed + countAlreadyFlagged) {
             System.out.println("  Flag: " + field[x][y].getValue() + " at (" + (x + 1) + "/" + (y + 1) + ")");
-            board.flagSurrounding(x, y);
             countAlreadyFlagged = getSurroundingByType(x, y, State.BLOCK_FLAG);
         }
 
         // Second: open the ones around
         if (countMinesAround == countAlreadyFlagged) {
             System.out.println("  Open: " + field[x][y].getValue() + " at (" + (x + 1) + "/" + (y + 1) + ")");
-            board.openSurrounding(x, y);
         }
-
-    }*/
+    }
 
     /**
      * Discovers all the fields around that match the parameter
@@ -52,20 +49,28 @@ public class SimpleAlgo {
         int hits = 0;
 
         if (y > 0) {
-            if (x > 0 && field[x - 1][y - 1] == type) hits++; // top ■□□
-            if (field[x][y - 1] == type) hits++;   // top □■□
-            if (x < fieldCols - 1 && field[x + 1][y - 1] == type) hits++; // top □□■
+            if (x > 0 && field[x - 1][y - 1] == type)
+                hits++; // top ■□□
+            if (field[x][y - 1] == type)
+
+                hits++;   // top □■□
+            if (x < fieldCols - 1 && field[x + 1][y - 1] == type)
+                hits++; // top □□■
         }
 
-        if (x > 0 && field[x - 1][y] == type) hits++; // middle ■□□
-        if (x < fieldCols - 1 && field[x + 1][y] == type) hits++; // middle □□■
+        if (x > 0 && field[x - 1][y] == type)
+            hits++; // middle ■□□
+        if (x < fieldCols - 1 && field[x + 1][y] == type)
+            hits++; // middle □□■
 
         if (y < fieldRows - 1) {
-            if (x > 0 && field[x - 1][y + 1] == type) hits++; // bottom ■□□
-            if (field[x][y + 1] == type) hits++;   // bottom □■□
-            if (x < fieldCols - 1 && field[x + 1][y + 1] == type) hits++; // bottom □□■
+            if (x > 0 && field[x - 1][y + 1] == type)
+                hits++; // bottom ■□□
+            if (field[x][y + 1] == type)
+                hits++;   // bottom □■□
+            if (x < fieldCols - 1 && field[x + 1][y + 1] == type)
+                hits++; // bottom □□■
         }
-
         return hits;
     }
 
@@ -81,18 +86,26 @@ public class SimpleAlgo {
         if (field[x][y] != State.BLOCK_CLOSED) return false;
 
         if (y > 0) {
-            if (x > 0 && field[x - 1][y - 1].getValue() >= 0) return true; // top ■□□
-            if (field[x][y - 1].getValue() >= 0) return true;   // top □■□
-            if (x < fieldCols - 1 && field[x + 1][y - 1].getValue() >= 0) return true; // top □□■
+            if (x > 0 && field[x - 1][y - 1].getValue() >= 0)
+                return true; // top ■□□
+            if (field[x][y - 1].getValue() >= 0)
+                return true;   // top □■□
+            if (x < fieldCols - 1 && field[x + 1][y - 1].getValue() >= 0)
+                return true; // top □□■
         }
 
-        if (x > 0 && field[x - 1][y].getValue() >= 0) return true; // middle ■□□
-        if (x < fieldCols - 1 && field[x + 1][y].getValue() >= 0) return true; // middle □□■
+        if (x > 0 && field[x - 1][y].getValue() >= 0)
+            return true; // middle ■□□
+        if (x < fieldCols - 1 && field[x + 1][y].getValue() >= 0)
+            return true; // middle □□■
 
         if (y < fieldRows - 1) {
-            if (x > 0 && field[x - 1][y + 1].getValue() >= 0) return true; // bottom ■□□
-            if (field[x][y + 1].getValue() >= 0) return true;   // bottom □■□
-            if (x < fieldCols - 1 && field[x + 1][y + 1].getValue() >= 0) return true; // bottom □□■
+            if (x > 0 && field[x - 1][y + 1].getValue() >= 0)
+                return true; // bottom ■□□
+            if (field[x][y + 1].getValue() >= 0)
+                return true;   // bottom □■□
+            if (x < fieldCols - 1 && field[x + 1][y + 1].getValue() >= 0)
+                return true; // bottom □□■
         }
 
         return false;
@@ -111,7 +124,6 @@ public class SimpleAlgo {
 
             }
         }
-
         return true;
     }
 
@@ -127,18 +139,26 @@ public class SimpleAlgo {
         int mines = 0;
 
         if (y > 0) {
-            if (x > 0 && array[x - 1][y - 1]) mines++; // top ■□□
-            if (array[x][y - 1]) mines++;   // top □■□
+            if (x > 0 && array[x - 1][y - 1])
+                mines++; // top ■□□
+            if (array[x][y - 1])
+
+                mines++;   // top □■□
             if (x < array.length - 1 && array[x + 1][y - 1]) mines++; // top □□■
         }
 
-        if (x > 0 && array[x - 1][y]) mines++; // middle ■□□
-        if (x < array.length - 1 && array[x + 1][y]) mines++; // middle □□■
+        if (x > 0 && array[x - 1][y])
+            mines++; // middle ■□□
+        if (x < array.length - 1 && array[x + 1][y])
+            mines++; // middle □□■
 
         if (y < array[0].length - 1) {
-            if (x > 0 && array[x - 1][y + 1]) mines++; // bottom ■□□
-            if (array[x][y + 1]) mines++;   // bottom □■□
-            if (x < array.length - 1 && array[x + 1][y + 1]) mines++; // bottom □□■
+            if (x > 0 && array[x - 1][y + 1])
+                mines++; // bottom ■□□
+            if (array[x][y + 1])
+                mines++;   // bottom □■□
+            if (x < array.length - 1 && array[x + 1][y + 1])
+                mines++; // bottom □□■
         }
 
         return mines;
