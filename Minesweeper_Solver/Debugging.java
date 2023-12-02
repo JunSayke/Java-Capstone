@@ -30,66 +30,35 @@ import java.util.Arrays;
 
 public class Debugging {
     public static void main(String[] args) throws IOException, AWTException {
-        Block[][] board = {
-                {Block.ONE, Block.CLOSED, Block.ONE},
-                {Block.CLOSED, Block.CLOSED, Block.CLOSED},
-                {Block.CLOSED, Block.CLOSED, Block.ONE},
+        Tile[][] board = {
+                { new Tile(0, 0, Block.ONE),  new Tile(0, 1, Block.CLOSED), new Tile(0, 2, Block.ONE)},
+                { new Tile(1, 0, Block.CLOSED),  new Tile(1, 1, Block.CLOSED), new Tile(1, 2, Block.CLOSED)},
+                { new Tile(2, 0, Block.CLOSED),  new Tile(2, 1, Block.CLOSED), new Tile(2, 2, Block.ONE)},
         };
+        displayBoard(board);
+        displayProbability(board);
 
-        Solver analyze = new Solver(board, 1);
+        Tile[][] solveBoard = solveBoard(board, 1);
+        displayBoard(solveBoard);
+        displayProbability(solveBoard);
+    }
+
+    // AUXILIARY FUNCTIONS
+
+    // THIS IS HOW TO SOLVE FOR EACH TILES PROBABILITIES
+    public static Tile[][] solveBoard(Tile[][] board, int mines) {
+        Tile[][] solveBoard = board.clone();
+        Solver analyze = new Solver(board, mines);
         AnalyzeResult<Tile> results =  analyze.solve();
-
         DetailedResults<Tile> detail = results.analyzeDetailed(analyze);
 
         for (ProbabilityKnowledge<Tile> ee : detail.getProxies()) {
-
-            System.out.println("Cell: (" + ee.getField().getX() + ", " + ee.getField().getY() + ") ~ " + ee.getMineProbability());
+            Tile cur = ee.getField();
+            cur.setProbability(ee.getMineProbability());
+            solveBoard[cur.getX()][cur.getY()] = cur;
         }
+        return solveBoard;
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // AUXILIARY FUNCTIONS
 
     // THIS IS HOW TO COMPARE TWO IMAGES BASED ON THEIR PIXELS
     public static boolean compareImage(BufferedImage image, BufferedImage target) {
@@ -98,12 +67,23 @@ public class Debugging {
         return Arrays.equals(imagePixels, targetPixels);
     }
 
-    // THIS IS HOW TO PRINT THE BOARD INTERNALLY
-    public static void displayMinesweeperBoard(Block[][] board) {
+    // THIS IS HOW TO DISPLAY EACH TILE PROBABILITY
+    public static void displayProbability(Tile[][] board) {
+        System.out.println("Minesweeper Probability:");
+        for (int x = 0; x < board.length; x++) {
+            for (int y = 0; y < board[0].length; y++) {
+                System.out.printf(" %.2f ", board[x][y].getProbability());
+            }
+            System.out.println();
+        }
+    }
+
+    // THIS IS HOW TO DISPLAY THE LAYOUT OF THE BOARD
+    public static void displayBoard(Tile[][] board) {
         System.out.println("Minesweeper Board:");
         for (int x = 0; x < board.length; x++) {
             for (int y = 0; y < board[0].length; y++) {
-                switch (board[y][x]) {
+                switch (board[x][y].getState()) {
                     case EMPTY:
                         System.out.print(" □ ");
                         break;

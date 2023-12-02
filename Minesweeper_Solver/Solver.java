@@ -8,21 +8,10 @@ import java.util.List;
 
 public class Solver extends AbstractAnalyze<Tile> {
     private final Tile[][] board;
-    private final int width;
-    private final int height;
     private final int remainingMines;
 
-    public Solver(Block[][] board, int remainingMines) {
-        this.width = board[0].length;
-        this.height = board.length;
-        this.board = new Tile[width][height];
-
-        for (int x = 0; x < width; x++) {
-            for (int y = 0; y < height; y++) {
-                this.board[x][y] = new Tile(x, y, board[x][y]);
-            }
-        }
-
+    public Solver(Tile[][] board, int remainingMines) {
+        this.board = board;
         this.remainingMines = remainingMines;
         this.createRules(getAllPoints());
     }
@@ -79,7 +68,7 @@ public class Solver extends AbstractAnalyze<Tile> {
                     continue;
                 if (xx < 0 || yy < 0)
                     continue;
-                if (xx >= width || yy >= height)
+                if (xx >= board[0].length || yy >= board.length)
                     continue;
                 neighbors.add(this.board[xx][yy]);
             }

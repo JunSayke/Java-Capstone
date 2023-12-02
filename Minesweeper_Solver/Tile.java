@@ -5,8 +5,8 @@ import Minesweeper_Solver.analyzer.factory.CharPoint;
 public class Tile {
     private final int x;
     private final int y;
-    private final Block state;
-    private final double probability;
+    private Block state;
+    private double probability;
 
     public Tile(int x, int y, Block state) {
         this(x, y, state, 0);
@@ -31,12 +31,19 @@ public class Tile {
         return probability;
     }
 
+    public void setProbability(double probability) {
+        this.probability = probability;
+    }
+    public Block getState() {
+        return state;
+    }
+    public void setState(Block state) {
+        this.state = state;
+    }
+
     @Override
     public String toString() {
         return "(" + x + ", " + y + " '" + state + "')";
     }
 
-    public Block getState() {
-        return state;
-    }
 }
