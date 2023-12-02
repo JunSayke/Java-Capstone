@@ -130,7 +130,4 @@ public class Solution<T> {
 		str.append(this.nCrValue + " combinations (" + this.getProbability() + ")");
 		return str.toString();
 	}
-
-	
-	
 }

@@ -19,9 +19,11 @@ public class Main {
 //            System.err.println(e.getMessage());
 //        }
         // TODO: Duplicate minesweeper board layout internally
-        Solver solver = new Solver();
-        solver.createRules();
-        solver.solve();
+//        int[][] field = { { 0, 1, 0 }, { 0, 0, 0 }, { 0, 0, 1 } };
+//        Solver solver = new Solver(field);
+//        solver.createRules();
+//        solver.solve();
+
     }
 }
 

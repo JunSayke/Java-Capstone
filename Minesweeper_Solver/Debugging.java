@@ -1,5 +1,9 @@
 package Minesweeper_Solver;
 
+import Minesweeper_Solver.analyzer.AnalyzeResult;
+import Minesweeper_Solver.analyzer.detail.DetailedResults;
+import Minesweeper_Solver.analyzer.detail.ProbabilityKnowledge;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -26,11 +30,64 @@ import java.util.Arrays;
 
 public class Debugging {
     public static void main(String[] args) throws IOException, AWTException {
-        // SAMPLE USE CASE
-        BufferedImage image = ImageIO.read(new File("Minesweeper_Solver\\imgs\\cell1.png"));
-        BufferedImage image2 = ImageIO.read(new File("Minesweeper_Solver\\imgs\\cell3.png"));
-        System.out.println(compareImage(image, image2));
+        Block[][] board = {
+                {Block.ONE, Block.CLOSED, Block.ONE},
+                {Block.CLOSED, Block.CLOSED, Block.CLOSED},
+                {Block.CLOSED, Block.CLOSED, Block.ONE},
+        };
+
+        Solver analyze = new Solver(board, 1);
+        AnalyzeResult<Tile> results =  analyze.solve();
+
+        DetailedResults<Tile> detail = results.analyzeDetailed(analyze);
+
+        for (ProbabilityKnowledge<Tile> ee : detail.getProxies()) {
+
+            System.out.println("Cell: (" + ee.getField().getX() + ", " + ee.getField().getY() + ") ~ " + ee.getMineProbability());
+        }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     // AUXILIARY FUNCTIONS
 
@@ -42,45 +99,45 @@ public class Debugging {
     }
 
     // THIS IS HOW TO PRINT THE BOARD INTERNALLY
-    public static void displayMinesweeperBoard(State[][] board) {
+    public static void displayMinesweeperBoard(Block[][] board) {
         System.out.println("Minesweeper Board:");
         for (int x = 0; x < board.length; x++) {
             for (int y = 0; y < board[0].length; y++) {
                 switch (board[y][x]) {
-                    case BLOCK_EMPTY:
+                    case EMPTY:
                         System.out.print(" □ ");
                         break;
-                    case BLOCK_CLOSED:
+                    case CLOSED:
                         System.out.print(" ■ ");
                         break;
-                    case BLOCK_ONE:
+                    case ONE:
                         System.out.print(" 1 ");
                         break;
-                    case BLOCK_TWO:
+                    case TWO:
                         System.out.print(" 2 ");
                         break;
-                    case BLOCK_THREE:
+                    case THREE:
                         System.out.print(" 3 ");
                         break;
-                    case BLOCK_FOUR:
+                    case FOUR:
                         System.out.print(" 4 ");
                         break;
-                    case BLOCK_FIVE:
+                    case FIVE:
                         System.out.print(" 5 ");
                         break;
-                    case BLOCK_SIX:
+                    case SIX:
                         System.out.print(" 6 ");
                         break;
-                    case BLOCK_SEVEN:
+                    case SEVEN:
                         System.out.print(" 7 ");
                         break;
-                    case BLOCK_EIGHT:
+                    case EIGHT:
                         System.out.print(" 8 ");
                         break;
-                    case BLOCK_FLAG:
+                    case FLAG:
                         System.out.print(" F ");
                         break;
-                    case BLOCK_MINE_EXPLODED:
+                    case MINE_EXPLODED:
                         System.out.print(" X ");
                         break;
                 }

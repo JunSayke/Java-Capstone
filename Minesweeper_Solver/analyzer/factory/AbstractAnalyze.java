@@ -12,9 +12,6 @@ import Minesweeper_Solver.analyzer.detail.NeighborFind;
 
 public abstract class AbstractAnalyze<F> extends AnalyzeFactory<F> implements NeighborFind<F> {
 	
-	public AbstractAnalyze() {
-	}
-	
 	protected abstract List<F> getAllPoints();
 	
 	protected final void createRules(List<F> points) {
