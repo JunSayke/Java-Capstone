@@ -1,7 +1,5 @@
 package Minesweeper_Solver;
 
-import Minesweeper_Solver.analyzer.factory.CharPoint;
-
 public class Tile {
     private final int x;
     private final int y;
@@ -9,14 +7,10 @@ public class Tile {
     private double probability;
 
     public Tile(int x, int y, Block state) {
-        this(x, y, state, 0);
-    }
-
-    public Tile(int x, int y, Block state, double probability) {
         this.x = x;
         this.y = y;
         this.state = state;
-        this.probability = probability;
+        this.probability = 0;
     }
 
     public int getX() {
@@ -34,16 +28,13 @@ public class Tile {
     public void setProbability(double probability) {
         this.probability = probability;
     }
-    public Block getState() {
-        return state;
-    }
-    public void setState(Block state) {
-        this.state = state;
-    }
 
     @Override
     public String toString() {
         return "(" + x + ", " + y + " '" + state + "')";
     }
 
+    public Block getState() {
+        return state;
+    }
 }

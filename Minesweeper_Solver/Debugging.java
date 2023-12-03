@@ -12,7 +12,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-/*
+/*   mnsw.pro
  *   The idea behind the minesweeper solver is to duplicate the game internally
  *   and then calculate the probability through a simple algorithm for those
  *   unopened cells. However only those near to the opened cells are calculated.
@@ -30,34 +30,102 @@ import java.util.Arrays;
 
 public class Debugging {
     public static void main(String[] args) throws IOException, AWTException {
-        Tile[][] board = {
-                { new Tile(0, 0, Block.ONE),  new Tile(0, 1, Block.CLOSED), new Tile(0, 2, Block.ONE)},
-                { new Tile(1, 0, Block.CLOSED),  new Tile(1, 1, Block.CLOSED), new Tile(1, 2, Block.CLOSED)},
-                { new Tile(2, 0, Block.CLOSED),  new Tile(2, 1, Block.CLOSED), new Tile(2, 2, Block.ONE)},
-        };
+        BufferedImage image = ImageIO.read(new File("screenshot.png"));
+
+        Tile[][] board = scanBoardImage(image, 16, 16);
         displayBoard(board);
         displayProbability(board);
 
-        Tile[][] solveBoard = solveBoard(board, 1);
+        Tile[][] solveBoard = solveBoard(board, 40);
         displayBoard(solveBoard);
         displayProbability(solveBoard);
     }
 
     // AUXILIARY FUNCTIONS
 
-    // THIS IS HOW TO SOLVE FOR EACH TILES PROBABILITIES
+    // THIS IS HOW TO DISPLAY THE LAYOUT OF THE BOARD
+    public static void displayBoard(Tile[][] board) {
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[0].length; col++) {
+                System.out.print(board[row][col].getState().getValue() + " ");
+            }
+            System.out.println();
+        }
+    }
+
+    // THIS IS HOW TO DUPLICATE AN EXTERNAL MINESWEEPER GAME
+    public static Tile[][] scanBoardImage(BufferedImage image, int rows, int cols) {
+        Tile[][] board = new Tile[rows][cols];
+        int side = image.getHeight() / rows;
+        int width = image.getWidth();
+        int height = image.getHeight();
+        int offset = 5;
+        for (int row = 0; row < height; row += side) {
+            for (int col = 0; col < width; col += side) {
+                BufferedImage crop = cropImage(image, col, row, side - offset, side - offset);
+                int x = row / side;
+                int y = col / side;
+                board[x][y] = new Tile(x, y, checkState(crop));
+            }
+        }
+        return board;
+    }
+
+    // THIS IS HOW TO DISPLAY EACH TILES PROBABILITY
+    public static void displayProbability(Tile[][] board) {
+        for (int x = 0; x < board.length; x++) {
+            for (int y = 0; y < board[0].length; y++) {
+                System.out.printf("%.2f ", board[x][y].getProbability());
+            }
+            System.out.println();
+        }
+    }
+
+    // THIS IS HOW TO CHECK EACH TILES PROBABILITY
     public static Tile[][] solveBoard(Tile[][] board, int mines) {
         Tile[][] solveBoard = board.clone();
         Solver analyze = new Solver(board, mines);
-        AnalyzeResult<Tile> results =  analyze.solve();
+        AnalyzeResult<Tile> results = analyze.solve();
         DetailedResults<Tile> detail = results.analyzeDetailed(analyze);
 
         for (ProbabilityKnowledge<Tile> ee : detail.getProxies()) {
             Tile cur = ee.getField();
-            cur.setProbability(ee.getMineProbability());
-            solveBoard[cur.getX()][cur.getY()] = cur;
+            int x = cur.getX();
+            int y = cur.getY();
+            double prob = ee.getMineProbability();
+            board[x][y].setProbability(prob);
         }
         return solveBoard;
+    }
+
+    // THIS IS HOW TO CHECK FOR TILE CONTENT
+    public static Block checkState(BufferedImage image) {
+        Point foundWhite = searchPixel(image, Pixel.WHITE.getValue());
+        Point foundBlack = searchPixel(image, Pixel.BLACK.getValue());
+        Point foundRed = searchPixel(image, Pixel.RED.getValue());
+
+        if (foundRed != null && foundBlack != null && foundWhite != null) {
+            return Block.FLAG;
+        }
+        if (foundRed != null && foundBlack != null) {
+            return Block.MINE;
+        }
+        if (foundWhite != null) {
+            return Block.CLOSED;
+        }
+        if (foundRed != null) {
+            return Block.THREE;
+        }
+        if (searchPixel(image, Pixel.BLUE.getValue()) != null) {
+            return Block.ONE;
+        }
+        if (searchPixel(image, Pixel.GREEN.getValue()) != null) {
+            return Block.TWO;
+        }
+        if (searchPixel(image, Pixel.DARK_BLUE.getValue()) != null) {
+            return Block.FOUR;
+        }
+        return Block.EMPTY;
     }
 
     // THIS IS HOW TO COMPARE TWO IMAGES BASED ON THEIR PIXELS
@@ -65,65 +133,6 @@ public class Debugging {
         byte[] imagePixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
         byte[] targetPixels = ((DataBufferByte) target.getRaster().getDataBuffer()).getData();
         return Arrays.equals(imagePixels, targetPixels);
-    }
-
-    // THIS IS HOW TO DISPLAY EACH TILE PROBABILITY
-    public static void displayProbability(Tile[][] board) {
-        System.out.println("Minesweeper Probability:");
-        for (int x = 0; x < board.length; x++) {
-            for (int y = 0; y < board[0].length; y++) {
-                System.out.printf(" %.2f ", board[x][y].getProbability());
-            }
-            System.out.println();
-        }
-    }
-
-    // THIS IS HOW TO DISPLAY THE LAYOUT OF THE BOARD
-    public static void displayBoard(Tile[][] board) {
-        System.out.println("Minesweeper Board:");
-        for (int x = 0; x < board.length; x++) {
-            for (int y = 0; y < board[0].length; y++) {
-                switch (board[x][y].getState()) {
-                    case EMPTY:
-                        System.out.print(" □ ");
-                        break;
-                    case CLOSED:
-                        System.out.print(" ■ ");
-                        break;
-                    case ONE:
-                        System.out.print(" 1 ");
-                        break;
-                    case TWO:
-                        System.out.print(" 2 ");
-                        break;
-                    case THREE:
-                        System.out.print(" 3 ");
-                        break;
-                    case FOUR:
-                        System.out.print(" 4 ");
-                        break;
-                    case FIVE:
-                        System.out.print(" 5 ");
-                        break;
-                    case SIX:
-                        System.out.print(" 6 ");
-                        break;
-                    case SEVEN:
-                        System.out.print(" 7 ");
-                        break;
-                    case EIGHT:
-                        System.out.print(" 8 ");
-                        break;
-                    case FLAG:
-                        System.out.print(" F ");
-                        break;
-                    case MINE_EXPLODED:
-                        System.out.print(" X ");
-                        break;
-                }
-            }
-            System.out.println();
-        }
     }
 
     // THIS IS HOW TO CROP AN IMAGE FROM AN EXISTING IMAGE
@@ -134,7 +143,7 @@ public class Debugging {
         if (y + h > image.getHeight()) {
             y = image.getHeight() - h;
         }
-       return image.getSubimage(x, y, w, h);
+        return image.getSubimage(x, y, w, h);
     }
 
     // THIS IS HOW TO TAKE A SCREENSHOT
@@ -184,12 +193,9 @@ public class Debugging {
         }
         for (int pointY = y; pointY < y + height; pointY++) {
             for (int pointX = x; pointX < x + width; pointX++) {
-                if (x < image.getWidth() - 1) {
-                    System.out.print(image.getRGB(pointX, pointY) + ", ");
-                } else {
-                    System.out.println(image.getRGB(pointX, pointY));
-                }
+                System.out.print(image.getRGB(pointX, pointY) + ", ");
             }
+            System.out.println();
         }
     }
 
@@ -212,12 +218,10 @@ public class Debugging {
         for (int pointY = y; pointY < y + height; pointY++) {
             for (int pointX = x; pointX < x + width; pointX++) {
                 if (image.getRGB(pointX, pointY) == targetColor) {
-                    System.out.println("Pixel found at coordinates: (" + pointX + ", " + pointY + ")");
                     return new Point(pointX, pointY);
                 }
             }
         }
-        System.out.println("Pixel cannot be found on the target image");
         return null;
     }
 }

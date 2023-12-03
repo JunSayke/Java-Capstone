@@ -8,11 +8,16 @@ import java.util.List;
 
 public class Solver extends AbstractAnalyze<Tile> {
     private final Tile[][] board;
-    private final int remainingMines;
+    private final int rows;
+    private final int cols;
+    private final int hiddenMines;
 
-    public Solver(Tile[][] board, int remainingMines) {
+    public Solver(Tile[][] board, int hiddenMines) {
+        this.rows = board[0].length;
+        this.cols = board.length;
         this.board = board;
-        this.remainingMines = remainingMines;
+
+        this.hiddenMines = hiddenMines;
         this.createRules(getAllPoints());
     }
 
@@ -27,21 +32,21 @@ public class Solver extends AbstractAnalyze<Tile> {
 
     @Override
     protected boolean fieldHasRule(Tile field) {
-        return isClicked(field) && !isDiscoveredMine(field);
+        return !isEmpty(field) && isClicked(field) && !isDiscoveredMine(field);
     }
 
     @Override
     protected int getRemainingMinesCount() {
-        return remainingMines;
+        return hiddenMines;
     }
 
     @Override
     protected List<Tile> getAllUnclickedFields() {
         List<Tile> tiles = new ArrayList<>();
         for (Tile[] row : board) {
-            for (Tile tile : row) {
-                if (!isClicked(tile))
-                    tiles.add(tile);
+            for (Tile col : row) {
+                if (!isClicked(col))
+                    tiles.add(col);
             }
         }
         return tiles;
@@ -54,7 +59,7 @@ public class Solver extends AbstractAnalyze<Tile> {
 
     @Override
     protected int getFieldValue(Tile field) {
-        return field.getState().getValue();
+        return Character.digit(field.getState().getValue(), 10);
     }
 
     @Override
@@ -62,19 +67,23 @@ public class Solver extends AbstractAnalyze<Tile> {
         List<Tile> neighbors = new ArrayList<>();
         int x = field.getX();
         int y = field.getY();
-        for (int xx = x - 1; xx <= x + 1; xx++) {
-            for (int yy = y - 1; yy <= y + 1; yy++) {
-                if (xx == x && yy == y)
+        for (int row = x - 1; row <= x + 1; row++) {
+            for (int col = y - 1; col <= y + 1; col++) {
+                if (row == x && col == y)
                     continue;
-                if (xx < 0 || yy < 0)
+                if (row < 0 || col < 0)
                     continue;
-                if (xx >= board[0].length || yy >= board.length)
+                if (row >= rows || col >= cols)
                     continue;
-                neighbors.add(this.board[xx][yy]);
+                neighbors.add(this.board[row][col]);
             }
         }
 
         return neighbors;
+    }
+
+    private boolean isEmpty(Tile field) {
+        return field.getState() == Block.EMPTY;
     }
 
     @Override
