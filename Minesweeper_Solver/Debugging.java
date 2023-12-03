@@ -30,24 +30,37 @@ import java.util.Arrays;
 
 public class Debugging {
     public static void main(String[] args) throws IOException, AWTException {
+        screenshot(new Rectangle(223, 272, 512, 512), "screenshot");
         BufferedImage image = ImageIO.read(new File("screenshot.png"));
 
         Tile[][] board = scanBoardImage(image, 16, 16);
-        displayBoard(board);
-        displayProbability(board);
-
         Tile[][] solveBoard = solveBoard(board, 40);
-        displayBoard(solveBoard);
-        displayProbability(solveBoard);
+        displayBoard(solveBoard, true);
     }
 
     // AUXILIARY FUNCTIONS
 
     // THIS IS HOW TO DISPLAY THE LAYOUT OF THE BOARD
     public static void displayBoard(Tile[][] board) {
+        displayBoard(board, false);
+    }
+
+    public static void displayBoard(Tile[][] board, boolean locateMine) {
         for (int row = 0; row < board.length; row++) {
             for (int col = 0; col < board[0].length; col++) {
-                System.out.print(board[row][col].getState().getValue() + " ");
+                Tile cur = board[row][col];
+                if (locateMine) {
+                    double prob = cur.getProbability();
+                    if (prob > 0.5) {
+                        System.out.print("!  ");
+                        continue;
+                    }
+                    if (prob > 0.3){
+                        System.out.print("?  ");
+                        continue;
+                    }
+                }
+                System.out.print(cur.getState().getValue() + "  ");
             }
             System.out.println();
         }
@@ -56,9 +69,9 @@ public class Debugging {
     // THIS IS HOW TO DUPLICATE AN EXTERNAL MINESWEEPER GAME
     public static Tile[][] scanBoardImage(BufferedImage image, int rows, int cols) {
         Tile[][] board = new Tile[rows][cols];
-        int side = image.getHeight() / rows;
         int width = image.getWidth();
         int height = image.getHeight();
+        int side = width / rows;
         int offset = 5;
         for (int row = 0; row < height; row += side) {
             for (int col = 0; col < width; col += side) {
@@ -73,9 +86,9 @@ public class Debugging {
 
     // THIS IS HOW TO DISPLAY EACH TILES PROBABILITY
     public static void displayProbability(Tile[][] board) {
-        for (int x = 0; x < board.length; x++) {
-            for (int y = 0; y < board[0].length; y++) {
-                System.out.printf("%.2f ", board[x][y].getProbability());
+        for (int row = 0; row < board.length; row++) {
+            for (int col = 0; col < board[0].length; col++) {
+                System.out.printf("%.2f ", board[row][col].getProbability());
             }
             System.out.println();
         }
@@ -98,7 +111,7 @@ public class Debugging {
         return solveBoard;
     }
 
-    // THIS IS HOW TO CHECK FOR TILE CONTENT
+    // THIS IS HOW TO CHECK FOR A TILE STATE/CONTENT
     public static Block checkState(BufferedImage image) {
         Point foundWhite = searchPixel(image, Pixel.WHITE.getValue());
         Point foundBlack = searchPixel(image, Pixel.BLACK.getValue());
@@ -107,7 +120,7 @@ public class Debugging {
         if (foundRed != null && foundBlack != null && foundWhite != null) {
             return Block.FLAG;
         }
-        if (foundRed != null && foundBlack != null) {
+        if (foundBlack != null) {
             return Block.MINE;
         }
         if (foundWhite != null) {
