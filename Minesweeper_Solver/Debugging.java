@@ -3,7 +3,6 @@ package Minesweeper_Solver;
 import Minesweeper_Solver.analyzer.AnalyzeResult;
 import Minesweeper_Solver.analyzer.detail.DetailedResults;
 import Minesweeper_Solver.analyzer.detail.ProbabilityKnowledge;
-
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -30,12 +29,15 @@ import java.util.Arrays;
 
 public class Debugging {
     public static void main(String[] args) throws IOException, AWTException {
-        screenshot(new Rectangle(223, 272, 512, 512), "screenshot");
+        //screenshot(new Rectangle(129, 274, 641-129,784-274), "screenshot");
         BufferedImage image = ImageIO.read(new File("screenshot.png"));
 
         Tile[][] board = scanBoardImage(image, 16, 16);
         Tile[][] solveBoard = solveBoard(board, 40);
         displayBoard(solveBoard, true);
+//        while(true){
+//            displayMouseCoordinates();
+//        }
     }
 
     // AUXILIARY FUNCTIONS
