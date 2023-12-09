@@ -78,16 +78,12 @@ public class AdvancedAlgo extends AbstractAnalyze<Tile> implements MinesweeperSo
         int y = field.getY();
         for (int row = x - 1; row <= x + 1; row++) {
             for (int col = y - 1; col <= y + 1; col++) {
-                if (row == x && col == y)
+                if ( (row == x && col == y) || row < 0 || col < 0 || row >= rows || col >= cols) {
                     continue;
-                if (row < 0 || col < 0)
-                    continue;
-                if (row >= rows || col >= cols)
-                    continue;
+                }
                 neighbors.add(this.board[row][col]);
             }
         }
-
         return neighbors;
     }
 

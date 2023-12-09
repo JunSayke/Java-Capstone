@@ -106,6 +106,7 @@ public class MinesweeperBot {
         if (imageAnalyzer.pixelSearch(Pixels.DARK_BLUE.getValue(), tolerance) != null) {
             return Block.FOUR;
         }
+        // TODO: ADD MORE CASES
 
         return Block.EMPTY;
     }
@@ -128,11 +129,15 @@ public class MinesweeperBot {
         this.totalMines = totalMines;
     }
 
+    public Tile[][] getBoard() {
+        return board;
+    }
+
     public BufferedImage getBoardImage() {
         return boardImage;
     }
 
     public static class MismatchRowsAndColsException extends RuntimeException {
-        // TODO: ADD POSSIBLE METHODS
+        // TODO: ADD POSSIBLE CODE
     }
 }
