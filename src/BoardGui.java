@@ -1,7 +1,10 @@
 package src;
 
 import src.data.Block;
+import src.data.MinesweeperBot;
+import src.data.MinesweeperSolver;
 import src.data.Tile;
+import src.data.solver.AdvancedAlgo;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -53,7 +56,7 @@ import static java.lang.Integer.parseInt;
 //Mainframe
 public class BoardGui extends JFrame{
     //GUI Test
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, AWTException {
         BoardGui jf = new BoardGui();
         jf.add(boardPanel);
         jf.setVisible(true);
@@ -83,8 +86,18 @@ public class BoardGui extends JFrame{
     }
 
     //Paints the board
-    public static void scanNewImage() throws IOException {
-        screenshot(new Rectangle(226, 274, 510,510), "screenshot");
+    public static void scanNewImage() throws IOException, AWTException {
+        Rectangle screenRegion = new Rectangle(129, 274, 511, 511);
+        MinesweeperSolver minesweeperSolver = AdvancedAlgo.getInstance();
+        MinesweeperBot minesweeperBot = new MinesweeperBot(screenRegion, minesweeperSolver, HeaderPanel.getRow(), HeaderPanel.getCol(), HeaderPanel.getMineCount());
+        minesweeperBot.run();
+
+        boardPanel.setTileSize();
+        boardPanel.paintBoard(boardPanel.getGraphics(), minesweeperBot.getBoard());
+        System.out.println(minesLeft);
+
+        /*
+        screenshot(new Rectangle(129, 274, 512, 510), "screenshot");
         BufferedImage image = ImageIO.read(new File("screenshot.png"));
 
         Tile[][] board = scanBoardImage(image, HeaderPanel.getRow(), HeaderPanel.getCol());
@@ -95,6 +108,7 @@ public class BoardGui extends JFrame{
         boardPanel.setTileSize();
         boardPanel.paintBoard(boardPanel.getGraphics(), boardSolved);
         System.out.println(minesLeft);
+         */
     }
 }
 
@@ -121,18 +135,18 @@ class BoardPanel extends JPanel{
         setPreferredSize(new Dimension(30*25 - 10, 16*33));
         this.tileSize = (int)Math.min(getPreferredSize().getHeight() / getCol(), getPreferredSize().getWidth()/ getRow());;
         try{
-            this.mine = ImageIO.read(getClass().getResource("images_gui/bomb.png"));
-            this.closed = ImageIO.read(getClass().getResource("images_gui/closed.png"));
-            this.flag = ImageIO.read(getClass().getResource("images_gui/flag.png"));
-            this.empty = ImageIO.read(getClass().getResource("images_gui/empty.png"));
-            this.one = ImageIO.read(getClass().getResource("images_gui/1.png"));
-            this.two = ImageIO.read(getClass().getResource("images_gui/2.png"));
-            this.three = ImageIO.read(getClass().getResource("images_gui/3.png"));
-            this.four = ImageIO.read(getClass().getResource("images_gui/4.png"));
-            this.five = ImageIO.read(getClass().getResource("images_gui/5.png"));
-            this.six = ImageIO.read(getClass().getResource("images_gui/6.png"));
-            this.seven = ImageIO.read(getClass().getResource("images_gui/7.png"));
-            this.eight = ImageIO.read(getClass().getResource("images_gui/8.png"));
+            this.mine = ImageIO.read(getClass().getResource("data/resources/bomb.png"));
+            this.closed = ImageIO.read(getClass().getResource("data/resources/closed.png"));
+            this.flag = ImageIO.read(getClass().getResource("data/resources/flag.png"));
+            this.empty = ImageIO.read(getClass().getResource("data/resources/empty.png"));
+            this.one = ImageIO.read(getClass().getResource("data/resources/1.png"));
+            this.two = ImageIO.read(getClass().getResource("data/resources/2.png"));
+            this.three = ImageIO.read(getClass().getResource("data/resources/3.png"));
+            this.four = ImageIO.read(getClass().getResource("data/resources/4.png"));
+            this.five = ImageIO.read(getClass().getResource("data/resources/5.png"));
+            this.six = ImageIO.read(getClass().getResource("data/resources/6.png"));
+            this.seven = ImageIO.read(getClass().getResource("data/resources/7.png"));
+            this.eight = ImageIO.read(getClass().getResource("data/resources/8.png"));
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -148,6 +162,7 @@ class BoardPanel extends JPanel{
         //1st pass for mines
         for(int i = 0; i < board.length; i++){
             for(int j = 0; j < board.length; j++){
+                System.out.println(board[i][j]);
                 if(board[i][j].getState() == Block.FLAG){
                     mines -= 1;
                 }
@@ -222,11 +237,16 @@ class BoardPanel extends JPanel{
         g2d.dispose();
 
         Color col = new Color(255,255,255, 255);
-        if(mineTile > 0.5){
+        if(mineTile >= 1.0){
             col = new Color(255, 0, 0, 200);
             System.out.println("Mine!");
-        }
-        else if(mineTile > 0.3) {
+        }else if(mineTile > 0.9) {
+            col = new Color(250, 250, 250, 255);
+            System.out.println("Unsure");
+        }else if(mineTile > 0.5) {
+            col = new Color(200, 200, 200, 255);
+            System.out.println("Unsure");
+        }else if(mineTile > 0.3) {
             col = new Color(140, 140, 140, 255);
             System.out.println("Unsure");
         }else if(mineTile == 0){
@@ -342,6 +362,8 @@ class HeaderPanel extends JPanel implements ActionListener{
                             try {
                                 BoardGui.scanNewImage();
                             } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            } catch (AWTException e) {
                                 throw new RuntimeException(e);
                             }
                         }

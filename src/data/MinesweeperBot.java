@@ -13,7 +13,7 @@ public class MinesweeperBot {
     private MinesweeperSolver minesweeperSolver;
     private Tile[][] board;
     private int rows, cols, totalMines, knownMines;
-    MinesweeperBot(Rectangle screenRegion, MinesweeperSolver minesweeperSolver, int rows, int cols, int totalMines) throws AWTException {
+    public MinesweeperBot(Rectangle screenRegion, MinesweeperSolver minesweeperSolver, int rows, int cols, int totalMines) throws AWTException {
         this.screenRegion = screenRegion;
         this.minesweeperSolver = minesweeperSolver;
         this.rows = rows;
@@ -31,7 +31,7 @@ public class MinesweeperBot {
         minesweeperSolver.displayProbability(board);
     }
 
-    private void captureBoardImage() {
+    public void captureBoardImage() {
         saveImage(robot.createScreenCapture(screenRegion), "src\\data\\temp\\MinesweeperBoard.png");
         try {
             boardImage = ImageIO.read(new File("src\\data\\temp\\MinesweeperBoard.png"));
@@ -40,7 +40,7 @@ public class MinesweeperBot {
         }
     }
 
-    private void scanBoardImage() {
+    public void scanBoardImage() {
         ImageAnalyzer imageAnalyzer = new ImageAnalyzer(boardImage);
         int width = boardImage.getWidth();
         int height = boardImage.getHeight();
@@ -54,12 +54,12 @@ public class MinesweeperBot {
         for (int row = 0; row < rows; row++) {
             for (int col = 0; col < cols; col++) {
                 BufferedImage crop = imageAnalyzer.cropImage(col * (side + offset), row * (side + offset), side - offset, side - offset);
-                saveImage(crop, "src\\data\\temp\\tile" + i + ".png");
-                try {
-                    crop = ImageIO.read(new File("src\\data\\temp\\tile" + i + ".png"));
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+//                saveImage(crop, "src\\data\\temp\\tile" + i + ".png");
+//                try {
+//                    crop = ImageIO.read(new File("src\\data\\temp\\tile" + i + ".png"));
+//                } catch (IOException e) {
+//                    throw new RuntimeException(e);
+//                }
                 Block state = checkState(crop);
                 if (state == Block.FLAG || state == Block.MINE) {
                     knownMines++;
