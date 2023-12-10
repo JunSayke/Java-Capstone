@@ -84,9 +84,14 @@ public class AdvancedAlgo extends AbstractAnalyze<Tile> implements MinesweeperSo
         return neighbor.getState() != Block.CLOSED;
     }
 
-    private void calculateProbabilities() {
-        createRules(getAllPoints());
+    @Override
+    public void solveBoard(Tile[][] board, int hiddenMines) {
+        this.board = board;
+        this.hiddenMines = hiddenMines;
+        rows = board.length;
+        cols = board[0].length;
 
+        createRules(getAllPoints());
         AnalyzeResult<Tile> results = solve();
         DetailedResults<Tile> detail = results.analyzeDetailed(this);
 
@@ -94,14 +99,5 @@ public class AdvancedAlgo extends AbstractAnalyze<Tile> implements MinesweeperSo
             Tile cur = ee.getField();
             board[cur.getX()][cur.getY()].setProbability(ee.getMineProbability());
         }
-    }
-
-    @Override
-    public void solveBoard(Tile[][] board, int hiddenMines) {
-        this.board = board;
-        this.hiddenMines = hiddenMines;
-        rows = board.length;
-        cols = board[0].length;
-        calculateProbabilities();
     }
 }
