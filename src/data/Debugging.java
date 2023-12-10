@@ -13,7 +13,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 
-/*   mnsw.pro
+/*   A messy spaghetti code
+ *   tested on mnsw.pro
  *   The idea behind the minesweeper solver is to duplicate the game internally
  *   and then calculate the probability through a simple algorithm for those
  *   unopened cells. However only those near to the opened cells are calculated.
@@ -31,13 +32,54 @@ import java.util.Arrays;
 
 public class Debugging {
     public static void main(String[] args) throws AWTException {
-        Rectangle screenRegion = new Rectangle(224, 274, 511, 511);
-        MinesweeperSolver minesweeperSolver = new AdvancedAlgo();
-        MinesweeperBot minesweeperBot = new MinesweeperBot(screenRegion, minesweeperSolver, 16, 16, 40);
-        minesweeperBot.calculateProbabilities();
+        setPixelsValue("src\\data\\pixels.ini");
+        System.out.println(Pixels.WHITE.getValue());
+        selectRegion();
     }
 
     // AUXILIARY FUNCTIONS
+
+    // THIS IS HOW TO REPLACE A PIXEL VALUES ON THE INI FILE
+    public static void replacePixelsValue(String filepath) {
+        IniFileWriter iniWriter = new IniFileWriter(filepath);
+        iniWriter.setProperty("BLACK", String.valueOf(Pixels.BLACK.getValue()));
+        iniWriter.setProperty("WHITE", String.valueOf(Pixels.WHITE.getValue()));
+
+        try {
+            iniWriter.write();
+        } catch (IOException e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
+    // THIS IS HOW TO SET PIXELS VALUE BASED ON THE INI FILE
+    public static void setPixelsValue(String filepath) {
+        IniFileReader iniReader = new IniFileReader(filepath);
+        try {
+            iniReader.read();
+            for (Pixels pixel : Pixels.values()) {
+                String pixelValue = iniReader.getProperty(pixel.name());
+                if (pixelValue != null) {
+                    int intValue = Integer.parseInt(pixelValue);
+                    pixel.setValue(intValue);
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            System.err.println(e.getMessage());
+        }
+    }
+
+    // THIS IS HOW TO DRAG AND SELECT A REGION IN THE SCREEN
+    public static void selectRegion() {
+        try {
+            Rectangle selectedRegion = new Rectangle();
+            new DrawRegionOnScreen(selectedRegion).setVisible(true);
+            new Robot().delay(5000);
+            System.out.println(selectedRegion);
+        } catch (AWTException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     // THIS IS HOW TO AUTOMATE THE MOUSE
     public static void automateMouse(int x, int y) {
@@ -172,6 +214,9 @@ public class Debugging {
         }
         if (searchPixel(image, Pixels.MAROON.getValue(), tolerance) != null) {
             return Block.FIVE;
+        }
+        if (searchPixel(image, Pixels.CYAN.getValue(), tolerance) != null) {
+            return Block.SIX;
         }
         return Block.EMPTY;
     }

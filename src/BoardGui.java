@@ -1,9 +1,6 @@
 package src;
 
-import src.data.Block;
-import src.data.MinesweeperBot;
-import src.data.MinesweeperSolver;
-import src.data.Tile;
+import src.data.*;
 import src.data.solver.AdvancedAlgo;
 
 import javax.imageio.ImageIO;
@@ -87,13 +84,15 @@ public class BoardGui extends JFrame{
 
     //Paints the board
     public static void scanNewImage() throws IOException, AWTException {
-        Rectangle screenRegion = new Rectangle(224, 274, 511, 511);
+        Rectangle selectedRegion = new Rectangle(224, 273, 512, 512);
         MinesweeperSolver minesweeperSolver = new AdvancedAlgo();
-        MinesweeperBot minesweeperBot = new MinesweeperBot(screenRegion, minesweeperSolver, HeaderPanel.getRow(), HeaderPanel.getCol(), HeaderPanel.getMineCount());
+        MinesweeperConfigs minesweeperConfigs = new MinesweeperConfigs(new Tile[HeaderPanel.getRow()][HeaderPanel.getCol()], HeaderPanel.getMineCount());
+        System.out.println(minesweeperConfigs);
+        MinesweeperBot minesweeperBot = new MinesweeperBot(selectedRegion, minesweeperSolver, minesweeperConfigs);
         minesweeperBot.calculateProbabilities();
 
         boardPanel.setTileSize();
-        boardPanel.paintBoard(boardPanel.getGraphics(), minesweeperBot.getBoard());
+        boardPanel.paintBoard(boardPanel.getGraphics(), minesweeperConfigs.board);
 
         minesweeperBot.automateClicks();
         /*

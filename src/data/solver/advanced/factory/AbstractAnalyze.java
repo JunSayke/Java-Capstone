@@ -17,10 +17,11 @@ public abstract class AbstractAnalyze<F> extends AnalyzeFactory<F> implements Ne
 	protected final void createRules(List<F> points) {
 		Set<F> knownNonMines = new HashSet<F>();
 		int remaining = getRemainingMinesCount();
+
 		if (remaining != -1) {
 			this.addRule(new FieldRule<F>(null, getAllUnclickedFields(), remaining));
 		}
-		
+
 		for (F field : points) {
 			if (!fieldHasRule(field))
 				continue;

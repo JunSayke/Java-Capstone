@@ -99,5 +99,6 @@ public class AdvancedAlgo extends AbstractAnalyze<Tile> implements MinesweeperSo
             Tile cur = ee.getField();
             board[cur.getX()][cur.getY()].setProbability(ee.getMineProbability());
         }
+
     }
 }

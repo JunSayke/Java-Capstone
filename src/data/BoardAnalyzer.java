@@ -3,55 +3,84 @@ package src.data;
 import java.awt.image.BufferedImage;
 
 public class BoardAnalyzer extends ImageAnalyzer {
-    private final int rows, cols, tileSide;
-    private int knownMines, tileCount, tileOffset, imageTolerance;
+    private final MinesweeperConfigs minesweeperConfigs;
+    private int tileOffset, imageTolerance;
     private boolean saveTiles;
-    public BoardAnalyzer(BufferedImage image, int rows, int cols) {
+    private static final String TILE_SAVE_PATH = "src\\data\\temp\\tile%s.png";
+
+    public BoardAnalyzer(BufferedImage image, MinesweeperConfigs minesweeperConfigs) {
         super(image);
-        this.rows = rows;
-        this.cols = cols;
-        tileSide = getWidth() / cols;
-        knownMines = 0;
-        tileCount = 0;
-        // default values
-        tileOffset = 0;
-        imageTolerance = 0;
+        this.minesweeperConfigs = minesweeperConfigs;
+        tileOffset = imageTolerance = 0;
         saveTiles = false;
     }
 
-    public Tile[][] scanBoardImage() {
-        Tile[][] board = new Tile[rows][cols];
-
-        if (rows != getHeight() / tileSide || cols != getWidth() / tileSide) {
-            throw new MismatchRowsAndColsException();
-        }
-
-        for (int row = 0; row < rows; row++) {
-            for (int col = 0; col < cols; col++) {
-                tileCount++;
-                Block state = checkState(col, row);
+    public void analyzeBoard() {
+        minesweeperConfigs.tileSide = getWidth() / minesweeperConfigs.cols;
+        validateBoardDimensions();
+        resetTileStatistics();
+        int i = 1;
+        for (int row = 0; row < minesweeperConfigs.rows; row++) {
+            for (int col = 0; col < minesweeperConfigs.cols; col++, i++) {
                 if (saveTiles) {
-                    BufferedImage crop = cropImage(col * (tileSide + tileOffset),row * (tileSide + tileOffset), tileSide - tileOffset, tileSide - tileOffset);
-                    saveImage(crop,"src\\data\\temp\\tile" + tileCount + ".png");
+                    BufferedImage crop = cropTileImage(col, row);
+                    saveImage(crop, String.format(TILE_SAVE_PATH, i));
                 }
-                if (state == Block.FLAG || state == Block.MINE) {
-                    knownMines++;
-                }
-                board[row][col] = new Tile(row, col, state);
+                analyzeTile(row, col);
             }
         }
-
-        return board;
     }
 
-    private boolean pixelSearch(int argb, int x, int y) {
-        return pixelSearch(argb, x * (tileSide + tileOffset), y * (tileSide + tileOffset), tileSide - tileOffset, tileSide - tileOffset, imageTolerance) != null;
+    private void resetTileStatistics() {
+        minesweeperConfigs.knownMines = 0;
+        minesweeperConfigs.emptyTiles = 0;
+        minesweeperConfigs.openedTiles = 0;
+    }
+
+    private void validateBoardDimensions() {
+        if (minesweeperConfigs.rows != getHeight() / minesweeperConfigs.tileSide || minesweeperConfigs.cols != getWidth() / minesweeperConfigs.tileSide) {
+            throw new MismatchRowsAndColsException();
+        }
+    }
+
+    private BufferedImage cropTileImage(int col, int row) {
+        return cropImage(col * (minesweeperConfigs.tileSide + tileOffset),
+                row * (minesweeperConfigs.tileSide + tileOffset),
+                minesweeperConfigs.tileSide - tileOffset,
+                minesweeperConfigs.tileSide - tileOffset);
+    }
+
+    private void analyzeTile(int row, int col) {
+        Block state = checkState(col, row);
+        updateTileStatistics(state);
+        minesweeperConfigs.board[row][col] = new Tile(row, col, state);
+    }
+
+    private void updateTileStatistics(Block state) {
+        if (state == Block.FLAG || state == Block.MINE) {
+            minesweeperConfigs.knownMines++;
+        }
+        if (state == Block.EMPTY) {
+            minesweeperConfigs.emptyTiles++;
+        }
+        if (Character.isDigit(state.getValue())) {
+            minesweeperConfigs.openedTiles++;
+        }
+    }
+
+    private boolean checkPixel(int argb, int x, int y) {
+        int xOffset = x * (minesweeperConfigs.tileSide + tileOffset);
+        int yOffset = y * (minesweeperConfigs.tileSide + tileOffset);
+        int width = minesweeperConfigs.tileSide - tileOffset;
+        int height = minesweeperConfigs.tileSide - tileOffset;
+
+        return pixelSearch(argb, xOffset, yOffset, width, height, imageTolerance) != null;
     }
 
     private Block checkState(int x, int y) {
-        boolean foundWhite = pixelSearch(Pixels.WHITE.getValue(), x, y);
-        boolean foundBlack = pixelSearch(Pixels.BLACK.getValue(), x, y);
-        boolean foundRed = pixelSearch(Pixels.RED.getValue(), x, y);
+        boolean foundWhite = checkPixel(Pixels.WHITE.getValue(), x, y);
+        boolean foundBlack = checkPixel(Pixels.BLACK.getValue(), x, y);
+        boolean foundRed = checkPixel(Pixels.RED.getValue(), x, y);
 
         if (foundRed && foundBlack && foundWhite) {
             return Block.FLAG;
@@ -62,20 +91,23 @@ public class BoardAnalyzer extends ImageAnalyzer {
         if (foundWhite) {
             return Block.CLOSED;
         }
-        if (foundRed) {
+        if (checkPixel(Pixels.RED.getValue(), x, y)) {
             return Block.THREE;
         }
-        if (pixelSearch(Pixels.BLUE.getValue(), x, y)) {
+        if (checkPixel(Pixels.BLUE.getValue(), x, y)) {
             return Block.ONE;
         }
-        if (pixelSearch(Pixels.GREEN.getValue(), x, y)) {
+        if (checkPixel(Pixels.GREEN.getValue(), x, y)) {
             return Block.TWO;
         }
-        if (pixelSearch(Pixels.PURPLE.getValue(), x, y)) {
+        if (checkPixel(Pixels.PURPLE.getValue(), x, y)) {
             return Block.FOUR;
         }
-        if (pixelSearch(Pixels.MAROON.getValue(), x, y)) {
+        if (checkPixel(Pixels.MAROON.getValue(), x, y)) {
             return Block.FIVE;
+        }
+        if (checkPixel(Pixels.CYAN.getValue(), x, y)) {
+            return Block.SIX;
         }
         // TODO: ADD MORE CASES
 
@@ -97,16 +129,7 @@ public class BoardAnalyzer extends ImageAnalyzer {
         return this;
     }
 
-    public int getKnownMines() {
-        return knownMines;
-    }
-
-    public int getTileSide() {
-        return tileSide;
-    }
-
-    public static class MismatchRowsAndColsException extends RuntimeException {
-        // TODO: ADD POSSIBLE CODE
+    private static class MismatchRowsAndColsException extends RuntimeException {
         MismatchRowsAndColsException() {
             super("Specified board rows and columns do not match the captured board image.");
         }

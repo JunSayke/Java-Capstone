@@ -7,12 +7,18 @@ public enum Pixels {
     MAROON(-7863292),
     BLUE(-16776961),
     PURPLE(-16774527),
-    GREEN(-16744448);
+    GREEN(-16744448),
+    CYAN(-16219004);
     // TODO: ADD MORE PIXELS
-    private final int value;
+
+    private int value;
 
     Pixels(int value) {
         this.value = value;
+    }
+
+    public void setValue(int RGBInt) {
+        value = RGBInt;
     }
 
     public int getValue() {
