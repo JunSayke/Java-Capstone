@@ -25,7 +25,8 @@ public class MinesweeperBot {
 
     public void run() {
         captureBoardImage();
-        minesweeperSolver.solveBoard(board, totalMines - knownMines);
+        int hiddenMines = totalMines - knownMines;
+        minesweeperSolver.solveBoard(board, hiddenMines);
 //        minesweeperSolver.displayBoard(board);
 //        minesweeperSolver.displayProbability(board);
     }
@@ -33,7 +34,7 @@ public class MinesweeperBot {
     private void captureBoardImage() {
         BoardAnalyzer boardAnalyzer = new BoardAnalyzer(robot.createScreenCapture(screenRegion), rows, cols);
         boardAnalyzer.saveImage("src\\data\\temp\\MinesweeperBoard.png");
-        boardAnalyzer.setImageTolerance(15).setTileOffset(1);
+        boardAnalyzer.setImageTolerance(20).setTileOffset(1);
         board = boardAnalyzer.scanBoardImage();
         knownMines = boardAnalyzer.getKnownMines();
     }

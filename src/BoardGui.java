@@ -63,6 +63,7 @@ public class BoardGui extends JFrame{
         jf.add(boardPanel);
         jf.setVisible(true);
         jf.setLocationRelativeTo(null);
+        jf.setTitle("Minesweeper Solver");
         jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 

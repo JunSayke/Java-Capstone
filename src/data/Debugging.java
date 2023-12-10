@@ -167,8 +167,11 @@ public class Debugging {
         if (searchPixel(image, Pixels.GREEN.getValue(), tolerance) != null) {
             return Block.TWO;
         }
-        if (searchPixel(image, Pixels.DARK_BLUE.getValue(), tolerance) != null) {
+        if (searchPixel(image, Pixels.PURPLE.getValue(), tolerance) != null) {
             return Block.FOUR;
+        }
+        if (searchPixel(image, Pixels.MAROON.getValue(), tolerance) != null) {
+            return Block.FIVE;
         }
         return Block.EMPTY;
     }

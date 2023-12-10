@@ -45,7 +45,7 @@ public class BoardAnalyzer extends ImageAnalyzer {
     }
 
     private boolean pixelSearch(int argb, int x, int y) {
-        return pixelSearch(argb, x * (tileSide + tileOffset),y * (tileSide + tileOffset), tileSide - tileOffset, tileSide - tileOffset, tileOffset) != null;
+        return pixelSearch(argb, x * (tileSide + tileOffset),y * (tileSide + tileOffset), tileSide - tileOffset, tileSide - tileOffset, imageTolerance) != null;
     }
 
     private Block checkState(int x, int y) {
@@ -71,8 +71,11 @@ public class BoardAnalyzer extends ImageAnalyzer {
         if (pixelSearch(Pixels.GREEN.getValue(), x, y)) {
             return Block.TWO;
         }
-        if (pixelSearch(Pixels.DARK_BLUE.getValue(), x, y)) {
+        if (pixelSearch(Pixels.PURPLE.getValue(), x, y)) {
             return Block.FOUR;
+        }
+        if (pixelSearch(Pixels.MAROON.getValue(), x, y)) {
+            return Block.FIVE;
         }
         // TODO: ADD MORE CASES
 
