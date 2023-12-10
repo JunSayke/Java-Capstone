@@ -30,10 +30,22 @@ import java.util.Arrays;
 
 public class Debugging {
     public static void main(String[] args) throws AWTException {
-        Rectangle screenRegion = new Rectangle(224, 274, 511, 511);
+        Rectangle screenRegion = new Rectangle(129, 274, 511, 511);
         MinesweeperSolver minesweeperSolver = AdvancedAlgo.getInstance();
         MinesweeperBot minesweeperBot = new MinesweeperBot(screenRegion, minesweeperSolver, 16, 16, 40);
-        minesweeperBot.run();
+
+        while(true){
+            try {
+                // Pause for 3 seconds (3000 milliseconds)
+                Thread.sleep(2000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            //minesweeperBot.run();
+            System.out.println("Running...");
+        }
+
+
     }
 
     // AUXILIARY FUNCTIONS
@@ -78,7 +90,7 @@ public class Debugging {
                 int x = row / side;
                 int y = col / side;
                 try {
-                    ImageIO.write(crop, "png", new File("Minesweeper_Solver\\imgs\\tile" + i + ".png"));
+                    ImageIO.write(crop, "png", new File("src\\data\\temp\\tile" + i + ".png"));
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -106,7 +118,7 @@ public class Debugging {
         AnalyzeResult<Tile> results = analyze.solve();
         DetailedResults<Tile> detail = results.analyzeDetailed(analyze);
 
-        System.out.println(detail.getProxies());
+        //System.out.println(detail.getProxies());
 
         for (ProbabilityKnowledge<Tile> ee : detail.getProxies()) {
             Tile cur = ee.getField();
