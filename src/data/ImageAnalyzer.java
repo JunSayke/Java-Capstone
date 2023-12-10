@@ -1,24 +1,25 @@
 package src.data;
 
+import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
+import java.io.File;
+import java.io.IOException;
 
 public class ImageAnalyzer {
-    private final BufferedImage image;
-    private final int width;
-    private final int height;
+    private final int width, height, pixelLength;
     private final boolean hasAlphaChannel;
-    private final int pixelLength;
+    private final BufferedImage image;
     private final byte[] pixels;
 
     public ImageAnalyzer(BufferedImage image) {
-        this.image = image;
-        this.pixels = ((DataBufferByte) image.getRaster().getDataBuffer()).getData();
-        this.width = image.getWidth();
-        this.height = image.getHeight();
-        this.hasAlphaChannel = image.getAlphaRaster() != null;
-        this.pixelLength = hasAlphaChannel ? 4 : 3;
+        this.image = processImage(image);
+        width = this.image.getWidth();
+        height = this.image.getHeight();
+        pixels = ((DataBufferByte) this.image.getRaster().getDataBuffer()).getData();
+        hasAlphaChannel = this.image.getAlphaRaster() != null;
+        pixelLength = hasAlphaChannel ? 4 : 3;
     }
 
     public int getRGB(int x, int y) {
@@ -37,11 +38,7 @@ public class ImageAnalyzer {
         y = Math.max(0, Math.min(this.height, y));
         width = Math.min(width, this.width - x);
         height = Math.min(height, this.height - y);
-        return image.getSubimage(x, y, width, height);
-    }
-
-    public Point pixelSearch(int argb) {
-        return pixelSearch(argb, 0);
+        return processImage(image.getSubimage(x, y, width, height));
     }
 
     public Point pixelSearch(int argb, int tolerance) {
@@ -55,8 +52,8 @@ public class ImageAnalyzer {
         width = Math.min(width, this.width - x);
         height = Math.min(height, this.height - y);
 
-        for (int row = x; row < width; row++) {
-            for (int col = y; col < height; col++) {
+        for (int row = x; row < x + width; row++) {
+            for (int col = y; col < y + height; col++) {
                 Color curr = new Color(getRGB(row, col));
                 int diffA = Math.abs(target.getAlpha() - curr.getAlpha());
                 int diffR = Math.abs(target.getRed() - curr.getRed());
@@ -73,22 +70,37 @@ public class ImageAnalyzer {
     public void enumeratePixels() {
         for (int y = 0; y < height; y++) {
             for (int x = 0; x < width; x++) {
-                System.out.println(getRGB(x, y) + ", ");
+                System.out.print(getRGB(x, y) + ", ");
             }
             System.out.println();
         }
     }
 
-    public BufferedImage convertToType(int targetType) {
-        if (image.getType() == targetType) {
-            return image;
-        }
-
-        BufferedImage convertedImage = new BufferedImage(image.getWidth(), image.getHeight(), targetType);
-        Graphics2D g = convertedImage.createGraphics();
-        g.drawImage(image, 0, 0, null);
+    private BufferedImage processImage(BufferedImage image) {
+        BufferedImage processImage = new BufferedImage(image.getWidth(), image.getHeight(), BufferedImage.TYPE_3BYTE_BGR);
+        Graphics g = processImage.getGraphics();
+        g.drawImage(image, 0, 0,null);
         g.dispose();
+        return processImage;
+    }
 
-        return convertedImage;
+    public void saveImage(String pathname) {
+        saveImage(image, pathname);
+    }
+
+    public void saveImage(BufferedImage image, String pathname) {
+        try {
+            ImageIO.write(image, "png", new File(pathname));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
     }
 }

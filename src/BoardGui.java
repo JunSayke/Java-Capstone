@@ -1,20 +1,25 @@
 package src;
 
 import src.data.Block;
+import src.data.MinesweeperBot;
+import src.data.MinesweeperSolver;
 import src.data.Tile;
+import src.data.solver.AdvancedAlgo;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.AWTEventListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.RescaleOp;
-import java.io.File;
 import java.io.IOException;
 
-import static src.data.Debugging.*;
-import static src.HeaderPanel.*;
 import static java.lang.Integer.parseInt;
+import static src.HeaderPanel.getCol;
+import static src.HeaderPanel.getRow;
 
 /*
  * Changes I made to other classes:
@@ -53,13 +58,12 @@ import static java.lang.Integer.parseInt;
 //Mainframe
 public class BoardGui extends JFrame{
     //GUI Test
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, AWTException {
         BoardGui jf = new BoardGui();
         jf.add(boardPanel);
         jf.setVisible(true);
+        jf.setLocationRelativeTo(null);
         jf.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-
-        scanNewImage();
     }
 
     //Main code
@@ -83,8 +87,18 @@ public class BoardGui extends JFrame{
     }
 
     //Paints the board
-    public static void scanNewImage() throws IOException {
-        screenshot(new Rectangle(226, 274, 510,510), "screenshot");
+    public static void scanNewImage() throws IOException, AWTException {
+        Rectangle screenRegion = new Rectangle(224, 274, 511, 511);
+        MinesweeperSolver minesweeperSolver = new AdvancedAlgo();
+        MinesweeperBot minesweeperBot = new MinesweeperBot(screenRegion, minesweeperSolver, HeaderPanel.getRow(), HeaderPanel.getCol(), HeaderPanel.getMineCount());
+        minesweeperBot.run();
+
+        boardPanel.setTileSize();
+        boardPanel.paintBoard(boardPanel.getGraphics(), minesweeperBot.getBoard());
+        System.out.println(minesLeft);
+
+        /*
+        screenshot(new Rectangle(129, 274, 512, 510), "screenshot");
         BufferedImage image = ImageIO.read(new File("screenshot.png"));
 
         Tile[][] board = scanBoardImage(image, HeaderPanel.getRow(), HeaderPanel.getCol());
@@ -95,6 +109,7 @@ public class BoardGui extends JFrame{
         boardPanel.setTileSize();
         boardPanel.paintBoard(boardPanel.getGraphics(), boardSolved);
         System.out.println(minesLeft);
+         */
     }
 }
 
@@ -121,18 +136,18 @@ class BoardPanel extends JPanel{
         setPreferredSize(new Dimension(30*25 - 10, 16*33));
         this.tileSize = (int)Math.min(getPreferredSize().getHeight() / getCol(), getPreferredSize().getWidth()/ getRow());;
         try{
-            this.mine = ImageIO.read(getClass().getResource("images_gui/bomb.png"));
-            this.closed = ImageIO.read(getClass().getResource("images_gui/closed.png"));
-            this.flag = ImageIO.read(getClass().getResource("images_gui/flag.png"));
-            this.empty = ImageIO.read(getClass().getResource("images_gui/empty.png"));
-            this.one = ImageIO.read(getClass().getResource("images_gui/1.png"));
-            this.two = ImageIO.read(getClass().getResource("images_gui/2.png"));
-            this.three = ImageIO.read(getClass().getResource("images_gui/3.png"));
-            this.four = ImageIO.read(getClass().getResource("images_gui/4.png"));
-            this.five = ImageIO.read(getClass().getResource("images_gui/5.png"));
-            this.six = ImageIO.read(getClass().getResource("images_gui/6.png"));
-            this.seven = ImageIO.read(getClass().getResource("images_gui/7.png"));
-            this.eight = ImageIO.read(getClass().getResource("images_gui/8.png"));
+            this.mine = ImageIO.read(getClass().getResource("data/resources/bomb.png"));
+            this.closed = ImageIO.read(getClass().getResource("data/resources/closed.png"));
+            this.flag = ImageIO.read(getClass().getResource("data/resources/flag.png"));
+            this.empty = ImageIO.read(getClass().getResource("data/resources/empty.png"));
+            this.one = ImageIO.read(getClass().getResource("data/resources/1.png"));
+            this.two = ImageIO.read(getClass().getResource("data/resources/2.png"));
+            this.three = ImageIO.read(getClass().getResource("data/resources/3.png"));
+            this.four = ImageIO.read(getClass().getResource("data/resources/4.png"));
+            this.five = ImageIO.read(getClass().getResource("data/resources/5.png"));
+            this.six = ImageIO.read(getClass().getResource("data/resources/6.png"));
+            this.seven = ImageIO.read(getClass().getResource("data/resources/7.png"));
+            this.eight = ImageIO.read(getClass().getResource("data/resources/8.png"));
         }catch(Exception e) {
             e.printStackTrace();
         }
@@ -148,6 +163,7 @@ class BoardPanel extends JPanel{
         //1st pass for mines
         for(int i = 0; i < board.length; i++){
             for(int j = 0; j < board.length; j++){
+                System.out.println(board[i][j]);
                 if(board[i][j].getState() == Block.FLAG){
                     mines -= 1;
                 }
@@ -222,16 +238,21 @@ class BoardPanel extends JPanel{
         g2d.dispose();
 
         Color col = new Color(255,255,255, 255);
-        if(mineTile > 0.5){
+        if(mineTile >= 1.0){
             col = new Color(255, 0, 0, 200);
-            System.out.println("Mine!");
-        }
-        else if(mineTile > 0.3) {
+//            System.out.println("Mine!");
+        }else if(mineTile > 0.9) {
+            col = new Color(250, 250, 250, 255);
+//            System.out.println("Unsure");
+        }else if(mineTile > 0.5) {
+            col = new Color(200, 200, 200, 255);
+//            System.out.println("Unsure");
+        }else if(mineTile > 0.3) {
             col = new Color(140, 140, 140, 255);
-            System.out.println("Unsure");
+//            System.out.println("Unsure");
         }else if(mineTile == 0){
             col = new Color(0, 255, 0, 200);
-            System.out.println("Guaranteed no mines!");
+//            System.out.println("Guaranteed no mines!");
         }
 
         float[] scales = { col.getRed() / 255f, col.getGreen() / 255f, col.getBlue() / 255f, col.getAlpha() / 255f };
@@ -245,7 +266,7 @@ class BoardPanel extends JPanel{
 }
 
 //The header GUI
-class HeaderPanel extends JPanel implements ActionListener{
+class HeaderPanel extends JPanel implements ActionListener {
     BoardGui boardGui;
     BoardPanel boardPanel;
     static TextField row = new TextField("0", 3);
@@ -260,11 +281,11 @@ class HeaderPanel extends JPanel implements ActionListener{
         this.boardPanel = boardPanel;
         this.setMinimumSize(new Dimension(1000, 100));
 
-        row = new TextField("1", 3);
-        col = new TextField("1", 3);
-        totalMines = new TextField("1", 3);
+        row = new TextField("16", 3);
+        col = new TextField("16", 3);
+        totalMines = new TextField("40", 3);
 
-        this.linkTiles = new JCheckBox("Link tile size");
+        linkTiles = new JCheckBox("Link tile size");
         linkTiles.setActionCommand("Link Tile Size");
         linkTiles.addActionListener(this);
 
@@ -343,6 +364,8 @@ class HeaderPanel extends JPanel implements ActionListener{
                                 BoardGui.scanNewImage();
                             } catch (IOException e) {
                                 throw new RuntimeException(e);
+                            } catch (AWTException e) {
+                                throw new RuntimeException(e);
                             }
                         }
                         capsLockPressed = false;
@@ -352,4 +375,3 @@ class HeaderPanel extends JPanel implements ActionListener{
         }
     }
 }
-

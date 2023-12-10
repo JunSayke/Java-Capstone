@@ -6,6 +6,7 @@ import src.data.solver.advanced.detail.DetailedResults;
 import src.data.solver.advanced.detail.ProbabilityKnowledge;
 import javax.imageio.ImageIO;
 import java.awt.*;
+import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
@@ -31,12 +32,35 @@ import java.util.Arrays;
 public class Debugging {
     public static void main(String[] args) throws AWTException {
         Rectangle screenRegion = new Rectangle(224, 274, 511, 511);
-        MinesweeperSolver minesweeperSolver = AdvancedAlgo.getInstance();
+        MinesweeperSolver minesweeperSolver = new AdvancedAlgo();
         MinesweeperBot minesweeperBot = new MinesweeperBot(screenRegion, minesweeperSolver, 16, 16, 40);
         minesweeperBot.run();
     }
 
     // AUXILIARY FUNCTIONS
+
+    // THIS IS HOW TO AUTOMATE THE MOUSE
+    public static void automateMouse(int x, int y) {
+        try {
+            Robot robot = new Robot();
+            Point initialPos = MouseInfo.getPointerInfo().getLocation();
+
+            int start_x = (int) initialPos.getX();
+            int start_y = (int) initialPos.getY();
+
+            for (int i = 0; i <= 100; i++){
+                int mov_x = start_x + (x - start_x) * i / 100;
+                int mov_y = start_y + (y - start_y) * i / 100;
+                robot.mouseMove(mov_x,mov_y);
+                robot.delay(10);
+            }
+
+            robot.mousePress(InputEvent.BUTTON1_DOWN_MASK);
+            robot.mouseRelease(InputEvent.BUTTON1_DOWN_MASK);
+        } catch (AWTException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     // THIS IS HOW TO DISPLAY THE LAYOUT OF THE BOARD
     public static void displayBoard(Tile[][] board) {
@@ -102,7 +126,7 @@ public class Debugging {
     // THIS IS HOW TO CHECK EACH TILES PROBABILITY
     public static Tile[][] solveBoard(Tile[][] board, int mines) {
         Tile[][] solveBoard = board.clone();
-        AdvancedAlgo analyze = AdvancedAlgo.getInstance();
+        AdvancedAlgo analyze = new AdvancedAlgo();
         AnalyzeResult<Tile> results = analyze.solve();
         DetailedResults<Tile> detail = results.analyzeDetailed(analyze);
 

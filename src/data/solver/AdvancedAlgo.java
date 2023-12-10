@@ -18,18 +18,6 @@ public class AdvancedAlgo extends AbstractAnalyze<Tile> implements MinesweeperSo
     private int cols;
     private int hiddenMines;
 
-    private static AdvancedAlgo advancedAlgo = null;
-    public static AdvancedAlgo getInstance() {
-        if (advancedAlgo == null) {
-            return new AdvancedAlgo();
-        }
-        return advancedAlgo;
-    }
-
-    private AdvancedAlgo() {
-        advancedAlgo = this;
-    }
-
     @Override
     protected List<Tile> getAllPoints() {
         List<Tile> tiles = new ArrayList<>();
@@ -96,12 +84,7 @@ public class AdvancedAlgo extends AbstractAnalyze<Tile> implements MinesweeperSo
         return neighbor.getState() != Block.CLOSED;
     }
 
-    @Override
-    public void solveBoard(Tile[][] board, int hiddenMines) {
-        this.board = board;
-        this.hiddenMines = hiddenMines;
-        rows = board.length;
-        cols = board[0].length;
+    private void calculateProbabilities() {
         createRules(getAllPoints());
 
         AnalyzeResult<Tile> results = solve();
@@ -109,10 +92,16 @@ public class AdvancedAlgo extends AbstractAnalyze<Tile> implements MinesweeperSo
 
         for (ProbabilityKnowledge<Tile> ee : detail.getProxies()) {
             Tile cur = ee.getField();
-            int x = cur.getX();
-            int y = cur.getY();
-            double prob = ee.getMineProbability();
-            board[x][y].setProbability(prob);
+            board[cur.getX()][cur.getY()].setProbability(ee.getMineProbability());
         }
+    }
+
+    @Override
+    public void solveBoard(Tile[][] board, int hiddenMines) {
+        this.board = board;
+        this.hiddenMines = hiddenMines;
+        rows = board.length;
+        cols = board[0].length;
+        calculateProbabilities();
     }
 }
