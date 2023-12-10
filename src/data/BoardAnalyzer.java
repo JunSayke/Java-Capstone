@@ -3,25 +3,25 @@ package src.data;
 import java.awt.image.BufferedImage;
 
 public class BoardAnalyzer extends ImageAnalyzer {
-    private final MinesweeperConfigs minesweeperConfigs;
+    private final MinesweeperConfig minesweeperConfig;
     private int tileOffset, imageTolerance;
     private boolean saveTiles;
     private static final String TILE_SAVE_PATH = "src\\data\\temp\\tile%s.png";
 
-    public BoardAnalyzer(BufferedImage image, MinesweeperConfigs minesweeperConfigs) {
+    public BoardAnalyzer(BufferedImage image, MinesweeperConfig minesweeperConfig) {
         super(image);
-        this.minesweeperConfigs = minesweeperConfigs;
+        this.minesweeperConfig = minesweeperConfig;
         tileOffset = imageTolerance = 0;
         saveTiles = false;
     }
 
     public void analyzeBoard() {
-        minesweeperConfigs.tileSide = getWidth() / minesweeperConfigs.cols;
+        minesweeperConfig.tileSide = getWidth() / minesweeperConfig.cols;
         validateBoardDimensions();
         resetTileStatistics();
         int i = 1;
-        for (int row = 0; row < minesweeperConfigs.rows; row++) {
-            for (int col = 0; col < minesweeperConfigs.cols; col++, i++) {
+        for (int row = 0; row < minesweeperConfig.rows; row++) {
+            for (int col = 0; col < minesweeperConfig.cols; col++, i++) {
                 if (saveTiles) {
                     BufferedImage crop = cropTileImage(col, row);
                     saveImage(crop, String.format(TILE_SAVE_PATH, i));
@@ -32,47 +32,47 @@ public class BoardAnalyzer extends ImageAnalyzer {
     }
 
     private void resetTileStatistics() {
-        minesweeperConfigs.knownMines = 0;
-        minesweeperConfigs.emptyTiles = 0;
-        minesweeperConfigs.openedTiles = 0;
+        minesweeperConfig.knownMines = 0;
+        minesweeperConfig.emptyTiles = 0;
+        minesweeperConfig.openedTiles = 0;
     }
 
     private void validateBoardDimensions() {
-        if (minesweeperConfigs.rows != getHeight() / minesweeperConfigs.tileSide || minesweeperConfigs.cols != getWidth() / minesweeperConfigs.tileSide) {
+        if (minesweeperConfig.rows != getHeight() / minesweeperConfig.tileSide || minesweeperConfig.cols != getWidth() / minesweeperConfig.tileSide) {
             throw new MismatchRowsAndColsException();
         }
     }
 
     private BufferedImage cropTileImage(int col, int row) {
-        return cropImage(col * (minesweeperConfigs.tileSide + tileOffset),
-                row * (minesweeperConfigs.tileSide + tileOffset),
-                minesweeperConfigs.tileSide - tileOffset,
-                minesweeperConfigs.tileSide - tileOffset);
+        return cropImage(col * (minesweeperConfig.tileSide + tileOffset),
+                row * (minesweeperConfig.tileSide + tileOffset),
+                minesweeperConfig.tileSide - tileOffset,
+                minesweeperConfig.tileSide - tileOffset);
     }
 
     private void analyzeTile(int row, int col) {
         Block state = checkState(col, row);
         updateTileStatistics(state);
-        minesweeperConfigs.board[row][col] = new Tile(row, col, state);
+        minesweeperConfig.board[row][col] = new Tile(row, col, state);
     }
 
     private void updateTileStatistics(Block state) {
         if (state == Block.FLAG || state == Block.MINE) {
-            minesweeperConfigs.knownMines++;
+            minesweeperConfig.knownMines++;
         }
         if (state == Block.EMPTY) {
-            minesweeperConfigs.emptyTiles++;
+            minesweeperConfig.emptyTiles++;
         }
         if (Character.isDigit(state.getValue())) {
-            minesweeperConfigs.openedTiles++;
+            minesweeperConfig.openedTiles++;
         }
     }
 
     private boolean checkPixel(int argb, int x, int y) {
-        int xOffset = x * (minesweeperConfigs.tileSide + tileOffset);
-        int yOffset = y * (minesweeperConfigs.tileSide + tileOffset);
-        int width = minesweeperConfigs.tileSide - tileOffset;
-        int height = minesweeperConfigs.tileSide - tileOffset;
+        int xOffset = x * (minesweeperConfig.tileSide + tileOffset);
+        int yOffset = y * (minesweeperConfig.tileSide + tileOffset);
+        int width = minesweeperConfig.tileSide - tileOffset;
+        int height = minesweeperConfig.tileSide - tileOffset;
 
         return pixelSearch(argb, xOffset, yOffset, width, height, imageTolerance) != null;
     }

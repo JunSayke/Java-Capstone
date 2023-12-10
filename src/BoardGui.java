@@ -86,13 +86,13 @@ public class BoardGui extends JFrame{
     public static void scanNewImage() throws IOException, AWTException {
         Rectangle selectedRegion = new Rectangle(224, 273, 512, 512);
         MinesweeperSolver minesweeperSolver = new AdvancedAlgo();
-        MinesweeperConfigs minesweeperConfigs = new MinesweeperConfigs(new Tile[HeaderPanel.getRow()][HeaderPanel.getCol()], HeaderPanel.getMineCount());
-        System.out.println(minesweeperConfigs);
-        MinesweeperBot minesweeperBot = new MinesweeperBot(selectedRegion, minesweeperSolver, minesweeperConfigs);
+        MinesweeperConfig minesweeperConfig = new MinesweeperConfig(new Tile[HeaderPanel.getRow()][HeaderPanel.getCol()], HeaderPanel.getMineCount());
+        System.out.println(minesweeperConfig);
+        MinesweeperBot minesweeperBot = new MinesweeperBot(selectedRegion, minesweeperSolver, minesweeperConfig);
         minesweeperBot.calculateProbabilities();
 
         boardPanel.setTileSize();
-        boardPanel.paintBoard(boardPanel.getGraphics(), minesweeperConfigs.board);
+        boardPanel.paintBoard(boardPanel.getGraphics(), minesweeperConfig.board);
 
         minesweeperBot.automateClicks();
         /*

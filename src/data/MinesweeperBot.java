@@ -6,7 +6,7 @@ import java.awt.event.InputEvent;
 public class MinesweeperBot {
     private final Robot robot;
     private final MinesweeperSolver minesweeperSolver;
-    private final MinesweeperConfigs minesweeperConfigs;
+    private final MinesweeperConfig minesweeperConfig;
     private Rectangle selectedRegion;
     private static final String MINESWEEPER_BOARD_SAVE_PATH = "src\\data\\temp\\MinesweeperBoard.png";
     private static final int MOUSE_MOVE_STEPS = 50;
@@ -14,34 +14,34 @@ public class MinesweeperBot {
     private static final int LEFT_CLICK = InputEvent.BUTTON1_DOWN_MASK;
     private static final int RIGHT_CLICK = InputEvent.BUTTON3_DOWN_MASK;
 
-    public MinesweeperBot(Rectangle selectedRegion, MinesweeperSolver minesweeperSolver, MinesweeperConfigs minesweeperConfigs) throws AWTException {
+    public MinesweeperBot(Rectangle selectedRegion, MinesweeperSolver minesweeperSolver, MinesweeperConfig minesweeperConfig) throws AWTException {
         this.selectedRegion = selectedRegion;
         this.minesweeperSolver = minesweeperSolver;
-        this.minesweeperConfigs = minesweeperConfigs;
+        this.minesweeperConfig = minesweeperConfig;
         robot = new Robot();
     }
 
     public void calculateProbabilities() {
         captureBoardImage();
         validateBoardState();
-        minesweeperSolver.solveBoard(minesweeperConfigs.board, minesweeperConfigs.totalMines - minesweeperConfigs.knownMines);
-        minesweeperSolver.displayBoard(minesweeperConfigs.board);
-        minesweeperSolver.displayProbability(minesweeperConfigs.board);
+        minesweeperSolver.solveBoard(minesweeperConfig.board, minesweeperConfig.totalMines - minesweeperConfig.knownMines);
+        minesweeperSolver.displayBoard(minesweeperConfig.board);
+        minesweeperSolver.displayProbability(minesweeperConfig.board);
     }
 
     private void captureBoardImage() {
-        BoardAnalyzer boardAnalyzer = new BoardAnalyzer(robot.createScreenCapture(selectedRegion), minesweeperConfigs);
+        BoardAnalyzer boardAnalyzer = new BoardAnalyzer(robot.createScreenCapture(selectedRegion), minesweeperConfig);
         boardAnalyzer.setSaveTiles(true).setTileOffset(0).setImageTolerance(20).analyzeBoard();
         boardAnalyzer.saveImage(MINESWEEPER_BOARD_SAVE_PATH);
     }
 
     public void automateClicks() {
-        for (Tile[] rows : minesweeperConfigs.board) {
+        for (Tile[] rows : minesweeperConfig.board) {
             for (Tile col : rows) {
                 double prob = col.getProbability();
                 if ((prob == 0 || prob == 1) && col.getState() == Block.CLOSED) {
-                    int x = col.getY() * minesweeperConfigs.tileSide + (int) selectedRegion.getX() + minesweeperConfigs.tileSide / 2;
-                    int y = col.getX() * minesweeperConfigs.tileSide + (int) selectedRegion.getY() + minesweeperConfigs.tileSide / 2;
+                    int x = col.getY() * minesweeperConfig.tileSide + (int) selectedRegion.getX() + minesweeperConfig.tileSide / 2;
+                    int y = col.getX() * minesweeperConfig.tileSide + (int) selectedRegion.getY() + minesweeperConfig.tileSide / 2;
 
                     moveMouseSmoothly(x, y);
 
@@ -65,14 +65,14 @@ public class MinesweeperBot {
     }
 
     private void validateBoardState() {
-        if (minesweeperConfigs.knownMines > minesweeperConfigs.totalMines) {
+        if (minesweeperConfig.knownMines > minesweeperConfig.totalMines) {
             throw new MineLimitExceededException();
         }
-        int reasonableEmptyTiles = (int) (minesweeperConfigs.totalTiles - (minesweeperConfigs.totalTiles * 0.5) - minesweeperConfigs.knownMines);
-        if (minesweeperConfigs.emptyTiles > reasonableEmptyTiles) {
-            throw new AbnormalEmptyTilesRatioException(reasonableEmptyTiles, minesweeperConfigs.emptyTiles);
+        int reasonableEmptyTiles = (int) (minesweeperConfig.totalTiles - (minesweeperConfig.totalTiles * 0.5) - minesweeperConfig.knownMines);
+        if (minesweeperConfig.emptyTiles > reasonableEmptyTiles) {
+            throw new AbnormalEmptyTilesRatioException(reasonableEmptyTiles, minesweeperConfig.emptyTiles);
         }
-        if (minesweeperConfigs.emptyTiles > 0 && minesweeperConfigs.openedTiles == 0) {
+        if (minesweeperConfig.emptyTiles > 0 && minesweeperConfig.openedTiles == 0) {
             throw new UnknownBoardImageException();
         }
     }
@@ -81,8 +81,8 @@ public class MinesweeperBot {
         this.selectedRegion = selectedRegion;
     }
 
-    public MinesweeperConfigs getMinesweeperConfigs() {
-        return minesweeperConfigs;
+    public MinesweeperConfig getMinesweeperConfigs() {
+        return minesweeperConfig;
     }
 
     public static class UnknownBoardImageException extends RuntimeException {

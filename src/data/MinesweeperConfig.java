@@ -1,6 +1,6 @@
 package src.data;
 
-public class MinesweeperConfigs {
+public class MinesweeperConfig {
     public final Tile[][] board;
     public final int rows;
     public final int cols;
@@ -8,7 +8,7 @@ public class MinesweeperConfigs {
     public final int totalTiles;
     public int tileSide, knownMines, emptyTiles, openedTiles;
 
-    public MinesweeperConfigs(Tile[][] board, int totalMines) {
+    public MinesweeperConfig(Tile[][] board, int totalMines) {
         this.board = board;
         this.totalMines = totalMines;
         rows = board.length;
