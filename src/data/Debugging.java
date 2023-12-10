@@ -34,7 +34,7 @@ public class Debugging {
         Rectangle screenRegion = new Rectangle(224, 274, 511, 511);
         MinesweeperSolver minesweeperSolver = new AdvancedAlgo();
         MinesweeperBot minesweeperBot = new MinesweeperBot(screenRegion, minesweeperSolver, 16, 16, 40);
-        minesweeperBot.run();
+        minesweeperBot.calculateProbabilities();
     }
 
     // AUXILIARY FUNCTIONS

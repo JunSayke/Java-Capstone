@@ -70,8 +70,6 @@ public class BoardGui extends JFrame{
     //Main code
     static BoardPanel boardPanel;
     JPanel headerPanel;
-    static int mineCount;
-    static int minesLeft;
 
     //Constructor
     public BoardGui(){
@@ -92,12 +90,12 @@ public class BoardGui extends JFrame{
         Rectangle screenRegion = new Rectangle(224, 274, 511, 511);
         MinesweeperSolver minesweeperSolver = new AdvancedAlgo();
         MinesweeperBot minesweeperBot = new MinesweeperBot(screenRegion, minesweeperSolver, HeaderPanel.getRow(), HeaderPanel.getCol(), HeaderPanel.getMineCount());
-        minesweeperBot.run();
+        minesweeperBot.calculateProbabilities();
 
         boardPanel.setTileSize();
         boardPanel.paintBoard(boardPanel.getGraphics(), minesweeperBot.getBoard());
-        System.out.println(minesLeft);
 
+        minesweeperBot.automateClicks();
         /*
         screenshot(new Rectangle(129, 274, 512, 510), "screenshot");
         BufferedImage image = ImageIO.read(new File("screenshot.png"));

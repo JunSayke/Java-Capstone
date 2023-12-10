@@ -45,7 +45,7 @@ public class BoardAnalyzer extends ImageAnalyzer {
     }
 
     private boolean pixelSearch(int argb, int x, int y) {
-        return pixelSearch(argb, x * (tileSide + tileOffset),y * (tileSide + tileOffset), tileSide - tileOffset, tileSide - tileOffset, imageTolerance) != null;
+        return pixelSearch(argb, x * (tileSide + tileOffset), y * (tileSide + tileOffset), tileSide - tileOffset, tileSide - tileOffset, imageTolerance) != null;
     }
 
     private Block checkState(int x, int y) {
@@ -99,6 +99,10 @@ public class BoardAnalyzer extends ImageAnalyzer {
 
     public int getKnownMines() {
         return knownMines;
+    }
+
+    public int getTileSide() {
+        return tileSide;
     }
 
     public static class MismatchRowsAndColsException extends RuntimeException {
