@@ -1,7 +1,5 @@
 # Java-Capstone
 
-Capstone Prototypes
-
-A work in progress
+A work in progress half-way done :)
 
 Shoutout to Sir Serato
