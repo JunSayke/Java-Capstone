@@ -1,8 +1,13 @@
-package src.data;
+package src.data.enums;
 
+// Useful tools
+// https://imagecolorpicker.com/en
+// https://argb-int-calculator.netlify.app/
 public enum Pixels {
     BLACK(-16777216),
     WHITE(-1),
+    GRAY(-4079423),
+    DARK_GRAY(-8355712),
     RED(-65536),
     MAROON(-7863292),
     BLUE(-16776961),

@@ -1,4 +1,4 @@
-package src.data;
+package src.data.utils.ini_file_handler;
 
 import java.io.BufferedWriter;
 import java.io.FileWriter;

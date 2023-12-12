@@ -1,5 +1,7 @@
 package src.data;
 
+import src.data.enums.Block;
+
 public class Tile {
     private final int x;
     private final int y;

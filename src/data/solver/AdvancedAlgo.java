@@ -1,6 +1,6 @@
 package src.data.solver;
 
-import src.data.Block;
+import src.data.enums.Block;
 import src.data.MinesweeperSolver;
 import src.data.Tile;
 import src.data.solver.advanced.AnalyzeResult;
@@ -84,9 +84,10 @@ public class AdvancedAlgo extends AbstractAnalyze<Tile> implements MinesweeperSo
         return neighbor.getState() != Block.CLOSED;
     }
 
+
     @Override
-    public void solveBoard(Tile[][] board, int hiddenMines) {
-        this.board = board;
+    public Tile[][] solveBoard(Tile[][] board, int hiddenMines) {
+        this.board = board.clone();
         this.hiddenMines = hiddenMines;
         rows = board.length;
         cols = board[0].length;
@@ -99,6 +100,6 @@ public class AdvancedAlgo extends AbstractAnalyze<Tile> implements MinesweeperSo
             Tile cur = ee.getField();
             board[cur.getX()][cur.getY()].setProbability(ee.getMineProbability());
         }
-
+        return this.board;
     }
 }

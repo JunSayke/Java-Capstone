@@ -1,9 +1,15 @@
 package src.data;
 
+import src.data.enums.Block;
+import src.data.enums.Pixels;
 import src.data.solver.AdvancedAlgo;
 import src.data.solver.advanced.AnalyzeResult;
 import src.data.solver.advanced.detail.DetailedResults;
 import src.data.solver.advanced.detail.ProbabilityKnowledge;
+import src.data.utils.DrawRegionOnScreen;
+import src.data.utils.ini_file_handler.IniFileReader;
+import src.data.utils.ini_file_handler.IniFileWriter;
+
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.event.InputEvent;
@@ -74,7 +80,7 @@ public class Debugging {
         try {
             Rectangle selectedRegion = new Rectangle();
             new DrawRegionOnScreen(selectedRegion).setVisible(true);
-            new Robot().delay(5000);
+            new Robot().delay(20000);
             System.out.println(selectedRegion);
         } catch (AWTException e) {
             throw new RuntimeException(e);

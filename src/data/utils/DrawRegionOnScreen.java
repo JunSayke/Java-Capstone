@@ -1,4 +1,4 @@
-package src.data;
+package src.data.utils;
 
 import javax.swing.*;
 import java.awt.*;

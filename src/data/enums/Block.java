@@ -1,4 +1,4 @@
-package src.data;
+package src.data.enums;
 
 public enum Block {
     MINE('X'),
