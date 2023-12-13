@@ -6,24 +6,27 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class IniFileWriter {
-    private final String filePath;
-    private final Map<String, String> properties;
-
+public class IniFileWriter extends IniFileHandler {
     public IniFileWriter(String filePath) {
-        this.filePath = filePath;
-        this.properties = new HashMap<>();
+        super(filePath);
     }
 
-    public void setProperty(String key, String value) {
-        properties.put(key, value);
-    }
-
-    public void write() throws IOException {
+    @Override
+    public void processFile() throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-            for (Map.Entry<String, String> entry : properties.entrySet()) {
-                writer.write(entry.getKey() + "=" + entry.getValue());
-                writer.newLine();
+            for (Map.Entry<String, Map<String, String>> sectionEntry : sections.entrySet()) {
+                String section = sectionEntry.getKey();
+                Map<String, String> sectionProperties = sectionEntry.getValue();
+
+                if (!section.isEmpty()) {
+                    writer.write("[" + section + "]");
+                    writer.newLine();
+                }
+
+                for (Map.Entry<String, String> entry : sectionProperties.entrySet()) {
+                    writer.write(entry.getKey() + "=" + entry.getValue());
+                    writer.newLine();
+                }
             }
         }
     }

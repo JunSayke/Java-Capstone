@@ -7,6 +7,7 @@ import src.data.solver.advanced.AnalyzeResult;
 import src.data.solver.advanced.detail.DetailedResults;
 import src.data.solver.advanced.detail.ProbabilityKnowledge;
 import src.data.utils.DrawRegionOnScreen;
+import src.data.utils.ini_file_handler.IniFileHandler;
 import src.data.utils.ini_file_handler.IniFileReader;
 import src.data.utils.ini_file_handler.IniFileWriter;
 
@@ -37,43 +38,24 @@ import java.util.Arrays;
  */
 
 public class Debugging {
-    public static void main(String[] args) throws AWTException {
-        setPixelsValue("src\\data\\pixels.ini");
-        System.out.println(Pixels.WHITE.getValue());
-        selectRegion();
+    public static void main(String[] args) throws AWTException, IOException {
+        IniFileHandler fileHandler = new IniFileWriter("src\\data\\config.ini");
+        fileHandler.setProperty("SelectedRegion", "x", "224");
+        fileHandler.setProperty("SelectedRegion", "y", "273");
+        fileHandler.setProperty("SelectedRegion", "width", "512");
+        fileHandler.setProperty("SelectedRegion", "height", "512");
+        fileHandler.setProperty("Configuration", "rows", "16");
+        fileHandler.setProperty("Configuration", "cols", "16");
+        fileHandler.setProperty("Configuration", "totalMines", "40");
+        fileHandler.setProperty("Configuration", "automateClicks", "true");
+        fileHandler.processFile();
+
+//        IniFileHandler fileHandler = new IniFileReader("src\\data\\config.ini");
+//        fileHandler.processFile();
+//        System.out.println(fileHandler.getSection("SelectedRegion"));
     }
 
     // AUXILIARY FUNCTIONS
-
-    // THIS IS HOW TO REPLACE A PIXEL VALUES ON THE INI FILE
-    public static void replacePixelsValue(String filepath) {
-        IniFileWriter iniWriter = new IniFileWriter(filepath);
-        iniWriter.setProperty("BLACK", String.valueOf(Pixels.BLACK.getValue()));
-        iniWriter.setProperty("WHITE", String.valueOf(Pixels.WHITE.getValue()));
-
-        try {
-            iniWriter.write();
-        } catch (IOException e) {
-            System.err.println(e.getMessage());
-        }
-    }
-
-    // THIS IS HOW TO SET PIXELS VALUE BASED ON THE INI FILE
-    public static void setPixelsValue(String filepath) {
-        IniFileReader iniReader = new IniFileReader(filepath);
-        try {
-            iniReader.read();
-            for (Pixels pixel : Pixels.values()) {
-                String pixelValue = iniReader.getProperty(pixel.name());
-                if (pixelValue != null) {
-                    int intValue = Integer.parseInt(pixelValue);
-                    pixel.setValue(intValue);
-                }
-            }
-        } catch (IOException | NumberFormatException e) {
-            System.err.println(e.getMessage());
-        }
-    }
 
     // THIS IS HOW TO DRAG AND SELECT A REGION IN THE SCREEN
     public static void selectRegion() {

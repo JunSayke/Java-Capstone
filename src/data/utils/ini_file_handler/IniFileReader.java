@@ -6,33 +6,42 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-public class IniFileReader {
-    private final String filePath;
-    private final Map<String, String> properties;
-
+public class IniFileReader extends IniFileHandler {
     public IniFileReader(String filePath) {
-        this.filePath = filePath;
-        this.properties = new HashMap<>();
+        super(filePath);
     }
 
-    public void read() throws IOException {
+    @Override
+    public void processFile() throws IOException {
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String currentSection = null;
+            Map<String, String> currentProperties = new HashMap<>();
+
             String line;
             while ((line = reader.readLine()) != null) {
                 // Ignore comments and empty lines
                 if (!line.trim().startsWith(";") && !line.trim().isEmpty()) {
-                    String[] parts = line.split("=", 2);
-                    if (parts.length == 2) {
-                        String key = parts[0].trim();
-                        String value = parts[1].trim();
-                        properties.put(key, value);
+                    if (line.trim().startsWith("[")) {
+                        // New section
+                        currentSection = line.trim().substring(1, line.trim().indexOf("]"));
+                        currentProperties = new HashMap<>();
+                        sections.put(currentSection, currentProperties);
+                    } else {
+                        // Property within the current section
+                        String[] parts = line.split("=", 2);
+                        if (parts.length == 2) {
+                            String key = parts[0].trim();
+                            String value = parts[1].trim();
+                            if (currentSection != null) {
+                                currentProperties.put(key, value);
+                            } else {
+                                // No section specified, consider it a global property
+                                sections.computeIfAbsent("", k -> new HashMap<>()).put(key, value);
+                            }
+                        }
                     }
                 }
             }
         }
-    }
-
-    public String getProperty(String key) {
-        return properties.get(key);
     }
 }

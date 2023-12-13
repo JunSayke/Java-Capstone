@@ -85,8 +85,8 @@ public class BoardGui extends JFrame {
 
     // Paints the board
     public static void scanNewImage() throws IOException, AWTException, InterruptedException {
-        Rectangle selectedRegion = new Rectangle(224, 273, 511, 511); // mnsw.pro
-//        Rectangle selectedRegion = new Rectangle(210, 373, 539, 420); // minesweeper google
+        Rectangle selectedRegion = new Rectangle(224, 273, 512, 512); // mnsw.pro
+//        Rectangle selectedRegion = new Rectangle(210, 373, 540, 420); // minesweeper google
         MinesweeperAI minesweeperAI = new MinesweeperAI(HeaderPanel.getRow(), HeaderPanel.getCol(), HeaderPanel.getMineCount(), new AdvancedAlgo());
         Tile[][] board = minesweeperAI.scanBoardImage(selectedRegion, PixelTileAnalyzer.getInstance());
         boardPanel.setTileSize();

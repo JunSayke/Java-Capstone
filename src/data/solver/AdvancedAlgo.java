@@ -92,7 +92,7 @@ public class AdvancedAlgo extends AbstractAnalyze<Tile> implements MinesweeperSo
         rows = board.length;
         cols = board[0].length;
 
-        createRules(getAllPoints());
+        createRules();
         AnalyzeResult<Tile> results = solve();
         DetailedResults<Tile> detail = results.analyzeDetailed(this);
 

@@ -45,9 +45,9 @@ public class MinesweeperAI {
         resetSafeAndMineTiles();
         for (Tile[] rows : board) {
             for (Tile tile : rows) {
-                if (tile.getProbability() == 0 && tile.getState() == Block.CLOSED) {
+                if (tile.getProbability() <= 0 && tile.getState() == Block.CLOSED) {
                     safeTiles.add(tile);
-                } else if (tile.getProbability() == 1 && !isMine(tile)) {
+                } else if (tile.getProbability() >= 0.9 && !isMine(tile)) {
                     mineTiles.add(tile);
                 }
             }
@@ -72,6 +72,7 @@ public class MinesweeperAI {
         for (Tile tile : safeTiles) {
             minesweeperRobot.clickTile(tile, boardAnalyzer.getTileHeight(), boardAnalyzer.getTileWidth(), InputEvent.BUTTON1_DOWN_MASK);
             if (!toggleAll) {
+                safeTiles.remove(tile);
                 return;
             }
         }
@@ -81,6 +82,7 @@ public class MinesweeperAI {
         for (Tile tile : mineTiles) {
             minesweeperRobot.clickTile(tile, boardAnalyzer.getTileHeight(), boardAnalyzer.getTileWidth(), InputEvent.BUTTON3_DOWN_MASK);
             if (!toggleAll) {
+                mineTiles.remove(tile);
                 return;
             }
         }

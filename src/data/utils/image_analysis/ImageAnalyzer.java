@@ -6,6 +6,8 @@ import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class ImageAnalyzer {
     private final int width, height, pixelLength;
@@ -39,8 +41,8 @@ public class ImageAnalyzer {
         return image.getSubimage(x, y, width, height);
     }
 
-    public Point pixelSearch(int argb, int tolerance) {
-        return pixelSearch(argb, 0, 0, width, height, tolerance);
+    public Point pixelSearch(int rgb, int tolerance) {
+        return pixelSearch(rgb, 0, 0, width, height, tolerance);
     }
 
     public Point pixelSearch(int rgb, int x, int y, int width, int height, int tolerance) {
@@ -53,10 +55,15 @@ public class ImageAnalyzer {
         for (int row = x; row < x + width; row++) {
             for (int col = y; col < y + height; col++) {
                 Color curr = new Color(getRGB(row, col));
-                int diffR = Math.abs(target.getRed() - curr.getRed());
-                int diffG = Math.abs(target.getGreen() - curr.getGreen());
-                int diffB = Math.abs(target.getBlue() - curr.getBlue());
-                if (diffR <= tolerance && diffG <= tolerance && diffB <= tolerance) {
+
+                int diffR = target.getRed() - curr.getRed();
+                int diffG = target.getGreen() - curr.getGreen();
+                int diffB = target.getBlue() - curr.getBlue();
+
+                // Euclidean distance
+                double distance = Math.sqrt(Math.pow(diffR, 2) + Math.pow(diffG, 2) + Math.pow(diffB, 2));
+
+                if (distance <= tolerance) {
                     return new Point(row, col);
                 }
             }

@@ -14,7 +14,7 @@ public class BoardAnalyzer extends ImageAnalyzer {
     private final int rows, cols, tileHeight, tileWidth;
     private int knownMines, emptyTiles, openedTiles, tileCounter;
 
-    private static final int TILE_OFFSET = 1;
+    private static final int TILE_OFFSET = 0;
     private static final double EMPTY_TILES_RATIO = 0.5;
 
     public BoardAnalyzer(BufferedImage image, TileAnalyzer tileAnalyzer, int rows, int cols) {
@@ -23,8 +23,10 @@ public class BoardAnalyzer extends ImageAnalyzer {
         this.tileAnalyzer = tileAnalyzer;
         this.rows = rows;
         this.cols = cols;
-        tileHeight = getHeight() / rows;
-        tileWidth = getWidth() / cols;
+        System.out.println(((double) getHeight() / (double) rows) + " " + (double) (getWidth() / cols));
+        tileHeight =  Math.ceilDiv(getHeight(), rows);
+        tileWidth = Math.ceilDiv(getWidth(), cols);
+//        System.out.println(tileHeight + " " + tileWidth + " " + getHeight() + " " + getWidth());
         board = new Tile[rows][cols];
         initTileStatistics();
     }
@@ -34,7 +36,7 @@ public class BoardAnalyzer extends ImageAnalyzer {
     }
 
     public Tile[][] analyzeBoardImage() {
-        if (rows != getHeight() / tileHeight || cols != getWidth() / tileWidth) {
+        if (rows != Math.ceilDiv(getHeight(), tileHeight) || cols != Math.ceilDiv(getWidth(), tileWidth)) {
             throw new MismatchRowsAndColsException();
         }
         for (int row = 0; row < rows; row++) {
