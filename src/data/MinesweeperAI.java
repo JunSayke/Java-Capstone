@@ -70,21 +70,21 @@ public class MinesweeperAI {
 
     public void clickSafeTiles(boolean toggleAll) {
         for (Tile tile : safeTiles) {
-            minesweeperRobot.clickTile(tile, boardAnalyzer.getTileHeight(), boardAnalyzer.getTileWidth(), InputEvent.BUTTON1_DOWN_MASK);
             if (!toggleAll) {
                 safeTiles.remove(tile);
                 return;
             }
+            minesweeperRobot.clickTile(tile, boardAnalyzer.getTileHeight(), boardAnalyzer.getTileWidth(), InputEvent.BUTTON1_DOWN_MASK);
         }
     }
 
     public void clickMineTiles(boolean toggleAll) {
         for (Tile tile : mineTiles) {
-            minesweeperRobot.clickTile(tile, boardAnalyzer.getTileHeight(), boardAnalyzer.getTileWidth(), InputEvent.BUTTON3_DOWN_MASK);
             if (!toggleAll) {
                 mineTiles.remove(tile);
                 return;
             }
+            minesweeperRobot.clickTile(tile, boardAnalyzer.getTileHeight(), boardAnalyzer.getTileWidth(), InputEvent.BUTTON3_DOWN_MASK);
         }
     }
 

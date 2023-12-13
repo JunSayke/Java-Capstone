@@ -1,6 +1,7 @@
 package src.data.utils.image_analysis;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.awt.image.DataBufferByte;
@@ -110,6 +111,7 @@ public class ImageAnalyzer {
         try {
             ImageIO.write(image, "png", new File(pathname));
         } catch (IOException e) {
+            JOptionPane.showMessageDialog(null,"Failed to get image!");
             throw new RuntimeException(e);
         }
     }

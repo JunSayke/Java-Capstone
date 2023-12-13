@@ -1,5 +1,6 @@
 package src.data.utils.ini_file_handler;
 
+import javax.swing.*;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -14,6 +15,7 @@ public class IniFileWriter extends IniFileHandler {
     @Override
     public void processFile() throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+
             for (Map.Entry<String, Map<String, String>> sectionEntry : sections.entrySet()) {
                 String section = sectionEntry.getKey();
                 Map<String, String> sectionProperties = sectionEntry.getValue();
@@ -28,6 +30,9 @@ public class IniFileWriter extends IniFileHandler {
                     writer.newLine();
                 }
             }
+        }catch (IOException e) {
+            JOptionPane.showMessageDialog(null,"Failed to process file!");
+            throw new RuntimeException(e);
         }
     }
 }
