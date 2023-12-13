@@ -12,6 +12,7 @@ import src.data.utils.ini_file_handler.IniFileReader;
 import src.data.utils.ini_file_handler.IniFileWriter;
 
 import javax.imageio.ImageIO;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.event.InputEvent;
 import java.awt.image.BufferedImage;
@@ -39,20 +40,21 @@ import java.util.Arrays;
 
 public class Debugging {
     public static void main(String[] args) throws AWTException, IOException {
-        IniFileHandler fileHandler = new IniFileWriter("src\\data\\config.ini");
-        fileHandler.setProperty("SelectedRegion", "x", "224");
-        fileHandler.setProperty("SelectedRegion", "y", "273");
-        fileHandler.setProperty("SelectedRegion", "width", "512");
-        fileHandler.setProperty("SelectedRegion", "height", "512");
-        fileHandler.setProperty("Configuration", "rows", "16");
-        fileHandler.setProperty("Configuration", "cols", "16");
-        fileHandler.setProperty("Configuration", "totalMines", "40");
-        fileHandler.setProperty("Configuration", "automateClicks", "true");
-        fileHandler.processFile();
+//        IniFileHandler fileHandler = new IniFileWriter("src\\data\\config.ini");
+//        fileHandler.setProperty("SelectedRegion", "x", "224");
+//        fileHandler.setProperty("SelectedRegion", "y", "273");
+//        fileHandler.setProperty("SelectedRegion", "width", "512");
+//        fileHandler.setProperty("SelectedRegion", "height", "512");
+//        fileHandler.setProperty("Configuration", "rows", "16");
+//        fileHandler.setProperty("Configuration", "cols", "16");
+//        fileHandler.setProperty("Configuration", "totalMines", "40");
+//        fileHandler.setProperty("Configuration", "automateClicks", "true");
+//        fileHandler.processFile();
 
 //        IniFileHandler fileHandler = new IniFileReader("src\\data\\config.ini");
 //        fileHandler.processFile();
 //        System.out.println(fileHandler.getSection("SelectedRegion"));
+        selectRegion();
     }
 
     // AUXILIARY FUNCTIONS
@@ -65,6 +67,7 @@ public class Debugging {
             new Robot().delay(20000);
             System.out.println(selectedRegion);
         } catch (AWTException e) {
+            JOptionPane.showMessageDialog(null,"Failed to select region!");
             throw new RuntimeException(e);
         }
     }
@@ -134,6 +137,7 @@ public class Debugging {
                 try {
                     ImageIO.write(crop, "png", new File("Minesweeper_Solver\\imgs\\tile" + i + ".png"));
                 } catch (IOException e) {
+                    JOptionPane.showMessageDialog(null,"There are an unexpectedly high number of empty tiles");
                     throw new RuntimeException(e);
                 }
                 i++;
@@ -328,7 +332,7 @@ public class Debugging {
 
             if (Math.abs(red - t.getRed()) <= tolerance &&
                     Math.abs(green - t.getGreen()) <= tolerance &&
-                      Math.abs(blue - t.getBlue()) <= tolerance) {
+                    Math.abs(blue - t.getBlue()) <= tolerance) {
                 return new Point(0, 0);
             }
         }

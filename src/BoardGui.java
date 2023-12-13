@@ -16,8 +16,7 @@ import java.io.File;
 import java.io.IOException;
 
 import static java.lang.Integer.parseInt;
-import static src.HeaderPanel.getCol;
-import static src.HeaderPanel.getRow;
+import static src.HeaderPanel.*;
 
 /*
  * Changes I made to other classes:
@@ -85,15 +84,41 @@ public class BoardGui extends JFrame {
 
     // Paints the board
     public static void scanNewImage() throws IOException, AWTException, InterruptedException {
-        Rectangle selectedRegion = new Rectangle(224, 273, 512, 512); // mnsw.pro
-//        Rectangle selectedRegion = new Rectangle(210, 373, 540, 420); // minesweeper google
+
+        Rectangle selectedRegion = new Rectangle(224, 310, 511, 511); // mnsw.pro
+
         MinesweeperAI minesweeperAI = new MinesweeperAI(HeaderPanel.getRow(), HeaderPanel.getCol(), HeaderPanel.getMineCount(), new AdvancedAlgo());
         Tile[][] board = minesweeperAI.scanBoardImage(selectedRegion, PixelTileAnalyzer.getInstance());
         boardPanel.setTileSize();
         boardPanel.paintBoard(boardPanel.getGraphics(), board);
         minesweeperAI.shuffleSafeAndMineTiles();
-        minesweeperAI.clickMineTiles(true);
-        minesweeperAI.clickSafeTiles(true);
+        if(automateClick.isSelected()){
+            minesweeperAI.clickMineTiles(true);
+            minesweeperAI.clickSafeTiles(true);
+        }else{
+            minesweeperAI.clickMineTiles(false);
+            minesweeperAI.clickSafeTiles(false);
+        }
+
+
+    }
+
+    public static void automateAll() throws IOException, AWTException, InterruptedException{
+        Rectangle selectedRegion = new Rectangle(224, 310, 511, 511); // mnsw.pro
+        MinesweeperAI minesweeperAI;
+        do {
+            minesweeperAI = new MinesweeperAI(HeaderPanel.getRow(), HeaderPanel.getCol(), HeaderPanel.getMineCount(), new AdvancedAlgo());
+            Tile[][] board = minesweeperAI.scanBoardImage(selectedRegion, PixelTileAnalyzer.getInstance());
+            boardPanel.setTileSize();
+            boardPanel.paintBoard(boardPanel.getGraphics(), board);
+
+            minesweeperAI.clickMineTiles(true);
+            minesweeperAI.clickSafeTiles(true);
+
+            if (minesweeperAI.getSafeTiles().size() == 0) {
+                break;
+            }
+        } while (minesweeperAI.getBoardAnalyzer().getKnownMines() < HeaderPanel.getMineCount());
     }
 }
 
@@ -125,6 +150,7 @@ class BoardPanel extends JPanel {
             this.eight = ImageIO.read(new File("src\\data\\resources\\8.png"));
         } catch (Exception e) {
             System.err.println(e.getMessage());
+            JOptionPane.showMessageDialog(null,"Image not found!");
         }
     }
 
@@ -218,7 +244,8 @@ class BoardPanel extends JPanel {
 }
 
 // The header GUI
-class HeaderPanel extends JPanel implements ActionListener {
+class HeaderPanel extends JPanel implements ActionListener{
+
     BoardGui boardGui;
     BoardPanel boardPanel;
     static TextField row = new TextField("0", 3);
@@ -226,6 +253,8 @@ class HeaderPanel extends JPanel implements ActionListener {
     static TextField totalMines;
     static JCheckBox automateClick;
     Button scan;
+    Button automate;
+    Button selectRegion;
 
     // Very confusing constructor
     public HeaderPanel(BoardGui boardGui, BoardPanel boardPanel) {
@@ -245,6 +274,14 @@ class HeaderPanel extends JPanel implements ActionListener {
         scan.setActionCommand("Scan");
         scan.addActionListener(this);
 
+        this.automate = new Button("Automate");
+        automate.setActionCommand("Automate");
+        automate.addActionListener(this);
+
+        this.selectRegion = new Button("Select Region");
+        selectRegion.setActionCommand("Select Region");
+        selectRegion.addActionListener(this);
+
         this.add(new JLabel("Row"));
         this.add(row);
         this.add(new JLabel("Column"));
@@ -253,6 +290,8 @@ class HeaderPanel extends JPanel implements ActionListener {
         this.add(new JLabel("Total Mines"));
         this.add(totalMines);
         this.add(scan);
+        this.add(automate);
+        this.add(selectRegion);
     }
 
     // When buttons are clicked
@@ -272,9 +311,16 @@ class HeaderPanel extends JPanel implements ActionListener {
                     System.out.println("Scanning additional pylons");
                     BoardGui.scanNewImage();
                 }
+                if(e.getActionCommand().equals("Automate")){
+                    BoardGui.automateAll();
+                }
+                if(e.getActionCommand().equals("Select Region")){
+
+                }
             }
         } catch (Exception exception) {
             System.err.println(exception.getMessage());
+            JOptionPane.showMessageDialog(null,"Invalid Action!");
         }
     }
 
