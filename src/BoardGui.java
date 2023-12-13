@@ -1,9 +1,14 @@
 package src;
 
 import src.data.*;
+import src.data.exceptions.InvalidRegionException;
 import src.data.solver.AdvancedAlgo;
 import src.data.Tile;
+import src.data.utils.DrawRegionOnScreen;
 import src.data.utils.image_analysis.PixelTileAnalyzer;
+import src.data.utils.ini_file_handler.IniFileHandler;
+import src.data.utils.ini_file_handler.IniFileReader;
+import src.data.utils.ini_file_handler.IniFileWriter;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -16,48 +21,20 @@ import java.io.File;
 import java.io.IOException;
 
 import static java.lang.Integer.parseInt;
-import static src.HeaderPanel.getCol;
-import static src.HeaderPanel.getRow;
-
-/*
- * Changes I made to other classes:
- * - In Block class, I changed Block state to be package private so paintBoard can access the states
- *      for painting each tile
- * - In the Debugging class, I changed solveBoard(Tile, int) to a static class, so I can access it
- *      here
- * - In the Debugging class, I changed screenshot(Rectangle, String) to a package private static class,
- *      so I can access it here
- *
- * Problems:
- * - Capslock only works if it's the highlighted application
- * - I have concerns over the amount of static classes and methods I made 😭
- * - Setting columns and rows that are not the same values, an error occurs
- * - Setting columns and rows that are not 2^n, an error occurs
- * - Link tile size checkbox, does not work as intended
- *
- * First order of business:
- * (✔) 1. Create a board template using images
- * (✔) 2. Add probability markers. If 100% a mine, add a red gradient
- * (✔) 3. Remove all static context and place all actions on Main
- * (✔) 3. Flip table cause flipped
- * (✔) 4. Display other probabilities (The algorithm doesn't work well displaying other probabilities)
- * (✔) 5. Create header with: Scan (keyboard shortcut: capslock or button click) and Width and Height setters
- * (✔) 6. Auto change tileSize based on amount of tiles
- *
- * (✔) 7. Cleanup code
- *
- * Changes(Version 3)
- *  - Removed BoardFrame
- *  - Cleaned up bulk of psvm
- *  - finally set row, column, and total bombs properly
- *  - removed BoardGui's Component listener as it is obsolete
- */
+import static src.BoardGui.isAutomating;
+import static src.HeaderPanel.*;
 
 // Mainframe
 public class BoardGui extends JFrame {
     // GUI Test
-    public static void main(String[] args) {
-        BoardGui jf = new BoardGui();
+    public static void main(String[] args) throws IOException {
+        BoardGui jf = new BoardGui(){
+            private final Image backgroundImage = ImageIO.read(new File("src\\data\\resources\\background.jpg"));
+            public void paint( Graphics g ) {
+                super.paint(g);
+                g.drawImage(backgroundImage, 0, 60, null);
+            }
+        };
         jf.add(boardPanel);
         jf.setVisible(true);
         jf.setLocationRelativeTo(null);
@@ -68,9 +45,10 @@ public class BoardGui extends JFrame {
     // Main code
     static BoardPanel boardPanel;
     JPanel headerPanel;
+    static boolean isAutomating = false;
 
     // Constructor
-    public BoardGui() {
+    public BoardGui() throws IOException {
         boardPanel = new BoardPanel(this);
         headerPanel = new HeaderPanel(this, boardPanel);
         setLayout(new BorderLayout());
@@ -81,19 +59,119 @@ public class BoardGui extends JFrame {
         pack();
         boardPanel.setFocusable(true);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
+        getGameSettingsConfig();
     }
 
     // Paints the board
-    public static void scanNewImage() throws IOException, AWTException, InterruptedException {
-        Rectangle selectedRegion = new Rectangle(224, 273, 512, 512); // mnsw.pro
-//        Rectangle selectedRegion = new Rectangle(210, 373, 540, 420); // minesweeper google
-        MinesweeperAI minesweeperAI = new MinesweeperAI(HeaderPanel.getRow(), HeaderPanel.getCol(), HeaderPanel.getMineCount(), new AdvancedAlgo());
+    public static void scanNewImage() throws IOException, AWTException {
+        Rectangle selectedRegion = getSelectedRegionConfig();
+        MinesweeperAI minesweeperAI = new MinesweeperAI(HeaderPanel.getTfRow(), HeaderPanel.getTfCol(), HeaderPanel.getMineCount(), new AdvancedAlgo());
         Tile[][] board = minesweeperAI.scanBoardImage(selectedRegion, PixelTileAnalyzer.getInstance());
         boardPanel.setTileSize();
         boardPanel.paintBoard(boardPanel.getGraphics(), board);
         minesweeperAI.shuffleSafeAndMineTiles();
-        minesweeperAI.clickMineTiles(true);
-        minesweeperAI.clickSafeTiles(true);
+        if(cbAutomateClick.isSelected()){
+            minesweeperAI.clickMineTiles(true);
+            minesweeperAI.clickSafeTiles(true);
+        }else{
+            minesweeperAI.clickMineTiles(false);
+            minesweeperAI.clickSafeTiles(false);
+        }
+    }
+    //Automate solving the board
+    public static void automateAll() throws IOException, AWTException{
+        Rectangle selectedRegion = getSelectedRegionConfig();
+        MinesweeperAI minesweeperAI;
+        isAutomating = true;
+        do {
+            minesweeperAI = new MinesweeperAI(HeaderPanel.getTfRow(), HeaderPanel.getTfCol(), HeaderPanel.getMineCount(), new AdvancedAlgo());
+            Tile[][] board = minesweeperAI.scanBoardImage(selectedRegion, PixelTileAnalyzer.getInstance());
+            boardPanel.setTileSize();
+            boardPanel.paintBoard(boardPanel.getGraphics(), board);
+            minesweeperAI.clickMineTiles(true);
+            minesweeperAI.clickSafeTiles(true);
+            if (minesweeperAI.getSafeTiles().isEmpty()) {
+                break;
+            }
+        } while (minesweeperAI.getBoardAnalyzer().getKnownMines() < HeaderPanel.getMineCount());
+        isAutomating = false;
+        JOptionPane.showMessageDialog(null, "Automation is done!");
+    }
+    //Selecting the board
+    public static void selectRegion(){
+        Rectangle selectedRegion = new Rectangle();
+        SwingUtilities.invokeLater(() -> {
+            try {
+                new DrawRegionOnScreen(selectedRegion).setVisible(true);
+            } catch (AWTException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(60000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            System.out.println(selectedRegion);
+            try {
+                setSelectedRegionConfig(selectedRegion);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }).start();
+    }
+
+    private static void setSelectedRegionConfig (Rectangle selectedRegion) throws IOException {
+        IniFileHandler iniFileHandler = new IniFileWriter("src\\data\\configSelectedRegion.ini");
+        int x = (int) selectedRegion.getX();
+        int y = (int) selectedRegion.getY();
+        int width = (int) selectedRegion.getWidth();
+        int height = (int) selectedRegion.getHeight();
+        iniFileHandler.setProperty( "x", String.valueOf(x));
+        iniFileHandler.setProperty("y", String.valueOf(y));
+        iniFileHandler.setProperty("width", String.valueOf(width));
+        iniFileHandler.setProperty("height", String.valueOf(height));
+        iniFileHandler.processFile();
+    }
+
+    private static Rectangle getSelectedRegionConfig() throws IOException {
+        IniFileHandler iniFileHandler = new IniFileReader("src\\data\\configSelectedRegion.ini");
+        iniFileHandler.processFile();
+        int x = Integer.parseInt(iniFileHandler.getProperty("x"));
+        int y = Integer.parseInt(iniFileHandler.getProperty("y"));
+        int width = Integer.parseInt(iniFileHandler.getProperty("width"));
+        int height = Integer.parseInt(iniFileHandler.getProperty("height"));
+        Rectangle selectedRegion = new Rectangle(x, y, width, height);
+        System.out.println(selectedRegion);
+        return selectedRegion;
+    }
+
+    private static void getGameSettingsConfig() throws IOException {
+        IniFileHandler iniFileHandler = new IniFileReader("src\\data\\configGameSettings.ini");
+        iniFileHandler.processFile();
+        cbAutomateClick.setSelected(Boolean.parseBoolean(iniFileHandler.getProperty("automateClicks")));
+        tfRow.setText(iniFileHandler.getProperty("rows"));
+        tfCol.setText(iniFileHandler.getProperty("cols"));
+        tfTotalMines.setText(iniFileHandler.getProperty("totalMines"));
+    }
+
+    static void setGameSettingsConfig() throws IOException {
+        IniFileHandler iniFileHandler = new IniFileWriter("src\\data\\configGameSettings.ini");
+        String rows = tfRow.getText();
+        String cols = tfCol.getText();
+        String totalMines = tfTotalMines.getText();
+        String automateClick;
+        if(cbAutomateClick.isSelected()) automateClick = "true";
+        else automateClick = "false";
+
+        iniFileHandler.setProperty( "automateClick", automateClick);
+        iniFileHandler.setProperty("rows", rows);
+        iniFileHandler.setProperty("cols", cols);
+        iniFileHandler.setProperty("totalMines", totalMines);
+        iniFileHandler.processFile();
     }
 }
 
@@ -108,8 +186,7 @@ class BoardPanel extends JPanel {
     public BoardPanel(BoardGui boardGui) {
         this.boardGui = boardGui;
         setPreferredSize(new Dimension(30 * 25 - 10, 16 * 33));
-        this.tileSize = (int) Math.min(getPreferredSize().getHeight() / getCol(), getPreferredSize().getWidth() / getRow());
-        ;
+        this.tileSize = (int) Math.min(getPreferredSize().getHeight() / getTfCol(), getPreferredSize().getWidth() / getTfRow());
         try {
             this.mine = ImageIO.read(new File("src\\data\\resources\\bomb.png"));
             this.closed = ImageIO.read(new File("src\\data\\resources\\closed.png"));
@@ -125,25 +202,34 @@ class BoardPanel extends JPanel {
             this.eight = ImageIO.read(new File("src\\data\\resources\\8.png"));
         } catch (Exception e) {
             System.err.println(e.getMessage());
+            JOptionPane.showMessageDialog(null,"Image not found!");
         }
     }
 
     // Tile size setter
     public void setTileSize() {
-        this.tileSize = (int) Math.min(getSize().getHeight() / getCol(), getSize().getWidth() / getRow());
+        this.tileSize = (int) Math.min(getSize().getHeight() / getTfCol(), getSize().getWidth() / getTfRow());
+    }
+
+    private void paintBackground(Graphics g) throws IOException {
+        super.paint(g);
+        Image backgroundImage = ImageIO.read(new File("src\\data\\resources\\background.jpg"));
+        g.drawImage(backgroundImage, 0, 0, null);
     }
 
     // CREATING THE BOARD
-    public void paintBoard(Graphics g, Tile[][] board) throws InterruptedException {
+    public void paintBoard(Graphics g, Tile[][] board) throws IOException {
         super.paintComponent(g);
-        double mineTile = 0;
+        paintBackground(g);
+        double mineTile;
+        double averageProbability = 0;
         int row = 0;
         int col = 0;
-        // 2nd pass for printing of the cells
         for (Tile[] tiles : board) {
-            for (int j = 0; j < board.length; j++) {
-                mineTile = tiles[j].getProbability();
-                switch (tiles[j].getState()) {
+            for (Tile tile : tiles) {
+                mineTile = tile.getProbability();
+                averageProbability += mineTile;
+                switch (tile.getState()) {
                     case MINE:
                         paintComponent(g, mine, row, col, -1);
                         break;
@@ -186,6 +272,7 @@ class BoardPanel extends JPanel {
             row = 0;
             col += tileSize;
         }
+        if(averageProbability/board.length == 0 && !isAutomating) throw new InvalidRegionException();
     }
 
     // PRINTS EACH CELL OF THE BOARD
@@ -204,28 +291,27 @@ class BoardPanel extends JPanel {
             col = new Color(0, 255, 0);
         }
 
-        // Create a RescaleOp with the color scales
         float[] scales = {col.getRed() / 255f, col.getGreen() / 255f, col.getBlue() / 255f};
         float[] offsets = {0, 0, 0, 0};
         RescaleOp tintOp = new RescaleOp(scales, offsets, null);
 
-        // Apply the tint to the BufferedImage
         BufferedImage tintedImage = tintOp.filter(i, null);
-
-        // Draw the tinted image
         g.drawImage(tintedImage, x, y, x + tileSize, y + tileSize, 0, 0, 200, 200, null);
     }
 }
 
 // The header GUI
-class HeaderPanel extends JPanel implements ActionListener {
+class HeaderPanel extends JPanel implements ActionListener{
+
     BoardGui boardGui;
     BoardPanel boardPanel;
-    static TextField row = new TextField("0", 3);
-    static TextField col = new TextField("0", 3);
-    static TextField totalMines;
-    static JCheckBox automateClick;
-    Button scan;
+    static TextField tfRow = new TextField("0", 3);
+    static TextField tfCol = new TextField("0", 3);
+    static TextField tfTotalMines;
+    static JCheckBox cbAutomateClick;
+    Button btnScan;
+    Button btnAutomate;
+    Button btnSelectRegion;
 
     // Very confusing constructor
     public HeaderPanel(BoardGui boardGui, BoardPanel boardPanel) {
@@ -233,26 +319,36 @@ class HeaderPanel extends JPanel implements ActionListener {
         this.boardPanel = boardPanel;
         this.setMinimumSize(new Dimension(1000, 100));
 
-        row = new TextField("16", 3);
-        col = new TextField("16", 3);
-        totalMines = new TextField("40", 3);
+        tfRow = new TextField("16", 3);
+        tfCol = new TextField("16", 3);
+        tfTotalMines = new TextField("40", 3);
 
-        automateClick = new JCheckBox("Toggle Auto-Click");
-        automateClick.setActionCommand("Toggle Auto-Click");
-        automateClick.addActionListener(this);
+        cbAutomateClick = new JCheckBox("Toggle Auto-Click");
+        cbAutomateClick.setActionCommand("Toggle Auto-Click");
+        cbAutomateClick.addActionListener(this);
 
-        this.scan = new Button("Scan board again");
-        scan.setActionCommand("Scan");
-        scan.addActionListener(this);
+        this.btnScan = new Button("Scan Board");
+        btnScan.setActionCommand("Scan");
+        btnScan.addActionListener(this);
+
+        this.btnAutomate = new Button("Solve for me");
+        btnAutomate.setActionCommand("Solve");
+        btnAutomate.addActionListener(this);
+
+        this.btnSelectRegion = new Button("Select Region");
+        btnSelectRegion.setActionCommand("Select Region");
+        btnSelectRegion.addActionListener(this);
 
         this.add(new JLabel("Row"));
-        this.add(row);
+        this.add(tfRow);
         this.add(new JLabel("Column"));
-        this.add(col);
-        this.add(automateClick);
+        this.add(tfCol);
         this.add(new JLabel("Total Mines"));
-        this.add(totalMines);
-        this.add(scan);
+        this.add(tfTotalMines);
+        this.add(cbAutomateClick);
+        this.add(btnScan);
+        this.add(btnAutomate);
+        this.add(btnSelectRegion);
     }
 
     // When buttons are clicked
@@ -263,14 +359,16 @@ class HeaderPanel extends JPanel implements ActionListener {
                 this.repaint();
                 boardPanel.repaint();
             } else {
-                if (e.getActionCommand().equals("Toggle Auto-Click")) {
-                    if (automateClick.isSelected()) {
-
-                    }
-                }
                 if (e.getActionCommand().equals("Scan")) {
                     System.out.println("Scanning additional pylons");
+                    BoardGui.setGameSettingsConfig();
                     BoardGui.scanNewImage();
+                }
+                if(e.getActionCommand().equals("Solve")){
+                    BoardGui.automateAll();
+                }
+                if(e.getActionCommand().equals("Select Region")){
+                    BoardGui.selectRegion();
                 }
             }
         } catch (Exception exception) {
@@ -278,15 +376,15 @@ class HeaderPanel extends JPanel implements ActionListener {
         }
     }
 
-    public static int getRow() {
-        return parseInt(row.getText());
+    public static int getTfRow() {
+        return parseInt(tfRow.getText());
     }
 
-    public static int getCol() {
-        return parseInt(col.getText());
+    public static int getTfCol() {
+        return parseInt(tfCol.getText());
     }
 
     public static int getMineCount() {
-        return parseInt(totalMines.getText());
+        return parseInt(tfTotalMines.getText());
     }
 }

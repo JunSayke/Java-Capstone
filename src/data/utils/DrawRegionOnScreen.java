@@ -21,7 +21,7 @@ public class DrawRegionOnScreen extends JFrame {
         setSize(screenSize);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
 
-        setBackground(new Color(0, 0, 0, 1)); // Set background color to transparent
+        setBackground(new Color(0, 0, 0, 100)); // Set background color to transparent
 
         addMouseListener(new MouseAdapter() {
             @Override
@@ -39,6 +39,7 @@ public class DrawRegionOnScreen extends JFrame {
                     selectedRegion.add(e.getPoint());
                     repaint();
                 }
+                dispose();
             }
         });
 
