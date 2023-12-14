@@ -62,10 +62,8 @@ public class Debugging {
     // THIS IS HOW TO DRAG AND SELECT A REGION IN THE SCREEN
     public static void selectRegion() {
         try {
-            Rectangle selectedRegion = new Rectangle();
-            new DrawRegionOnScreen(selectedRegion).setVisible(true);
+            new DrawRegionOnScreen("src\\data\\configSelectedRegion.ini").setVisible(true);
             new Robot().delay(20000);
-            System.out.println(selectedRegion);
         } catch (AWTException e) {
             JOptionPane.showMessageDialog(null,"Failed to select region!");
             throw new RuntimeException(e);

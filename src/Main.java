@@ -19,6 +19,10 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+import static src.BoardGuiTest.isAutomating;
+import static src.HeaderPanel.getTfCol;
+import static src.HeaderPanel.getTfRow;
+
 public class Main extends JFrame {
     private JTextField tfRow;
     private JTextField tfColumn;
@@ -31,7 +35,6 @@ public class Main extends JFrame {
     private JLabel lblColumn;
     private JLabel lblTotalMines;
     private JPanel jpanel;
-
     private BoardJPanel boardJPanel;
 
     public Main() {
@@ -39,21 +42,24 @@ public class Main extends JFrame {
         tfColumn.setText("16");
         tfTotalMines.setText("40");
 
-        boardJPanel = new BoardJPanel(32);
+        boardJPanel = new BoardJPanel();
         add(boardJPanel);
 
         btnScanBoard.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                repaint();
+                boardJPanel.repaint();
                 MinesweeperAI minesweeperAI = new MinesweeperAI(Integer.parseInt(tfRow.getText()),
                         Integer.parseInt(tfColumn.getText()),
                         Integer.parseInt(tfTotalMines.getText()),
                         new AdvancedAlgo());
-                Rectangle rectangle = new Rectangle(224, 272, 512, 512);
+                Rectangle rectangle = new Rectangle(223, 272, 512, 512);
                 Tile[][] board;
                 try {
                     board = minesweeperAI.scanBoardImage(rectangle, new PixelTileAnalyzer());
-                } catch (AWTException ex) {
+                    boardJPanel.paintBoard(boardJPanel.getGraphics(), board);
+                } catch (AWTException | IOException ex) {
                     throw new RuntimeException(ex);
                 }
             }
@@ -93,9 +99,10 @@ class BoardJPanel extends JPanel {
     };
 
     // Constructor
-    public BoardJPanel(int tileSize) {
-        this.tileSize = tileSize;
+    public BoardJPanel() {
         setPreferredSize(new Dimension(30 * 25 - 10, 16 * 33));
+        this.tileSize = (int) Math.min(getPreferredSize().getHeight() / getTfCol(), getPreferredSize().getWidth() / getTfRow());
+        System.out.println("TEST:" + tileSize);
         resources = new HashMap<>();
         try {
             for (String filename : IMAGES_NAME) {
@@ -104,27 +111,27 @@ class BoardJPanel extends JPanel {
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
-            JOptionPane.showMessageDialog(null,"Image not found!");
+            JOptionPane.showMessageDialog(null, "Image not found!");
         }
     }
 
     private void paintBackground(Graphics g) throws IOException {
-        super.paint(g);
         Image backgroundImage = ImageIO.read(new File("src\\data\\resources\\background.jpg"));
         g.drawImage(backgroundImage, 0, 0, null);
     }
 
+
     // CREATING THE BOARD
     public void paintBoard(Graphics g, Tile[][] board) throws IOException {
-        System.out.println(g);
-        super.paintComponent(g);
         paintBackground(g);
         double mineTile;
+        double averageProbability = 0;
         int row = 0;
         int col = 0;
         for (Tile[] tiles : board) {
             for (Tile tile : tiles) {
                 mineTile = tile.getProbability();
+                averageProbability += mineTile;
                 Block state = tile.getState();
                 paintComponent(g, resources.get(state.toString()), row, col, (state == Block.CLOSED ? mineTile : -1));
                 row += tileSize;
@@ -132,6 +139,7 @@ class BoardJPanel extends JPanel {
             row = 0;
             col += tileSize;
         }
+        if (averageProbability / board.length == 0 && !isAutomating) throw new InvalidBoardException();
     }
 
     // PRINTS EACH CELL OF THE BOARD
@@ -140,17 +148,13 @@ class BoardJPanel extends JPanel {
 
         if (mineTile >= 1.0) {
             col = new Color(255, 0, 0);
-        }
-        else if (mineTile > 0.9) {
+        } else if (mineTile > 0.9) {
             col = new Color(250, 250, 250);
-        }
-        else if (mineTile > 0.5) {
+        } else if (mineTile > 0.5) {
             col = new Color(200, 200, 200);
-        }
-        else if (mineTile > 0.3) {
+        } else if (mineTile > 0.3) {
             col = new Color(140, 140, 140);
-        }
-        else if (mineTile == 0) {
+        } else if (mineTile == 0) {
             col = new Color(0, 255, 0);
         }
 
@@ -160,5 +164,11 @@ class BoardJPanel extends JPanel {
 
         BufferedImage tintedImage = tintOp.filter(image, null);
         g.drawImage(tintedImage, x, y, x + tileSize, y + tileSize, 0, 0, 200, 200, null);
+    }
+
+    // Tile size setter
+    public void setTileSize() {
+        tileSize = (int) Math.min(getSize().getHeight() / getTfCol(), getSize().getWidth() / getTfRow());
+        System.out.println(tileSize);
     }
 }

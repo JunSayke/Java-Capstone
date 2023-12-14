@@ -24,21 +24,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Integer.parseInt;
-import static src.BoardGui.isAutomating;
+import static src.BoardGuiTest.isAutomating;
 import static src.HeaderPanel.*;
 
 // Mainframe
-public class BoardGui extends JFrame {
+public class BoardGuiTest extends JFrame {
     // GUI Test
     public static void main(String[] args) throws IOException {
-        BoardGui jf = new BoardGui() {
-            private final Image backgroundImage = ImageIO.read(new File("src\\data\\resources\\background.jpg"));
-
-            public void paint(Graphics g) {
-                super.paint(g);
-                g.drawImage(backgroundImage, 0, 60, null);
-            }
-        };
+        BoardGuiTest jf = new BoardGuiTest();
         jf.setVisible(true);
         jf.setLocationRelativeTo(null);
         jf.setTitle("Minesweeper Solver");
@@ -50,8 +43,10 @@ public class BoardGui extends JFrame {
     JPanel headerPanel;
     static boolean isAutomating = false;
 
+    private final static String backgroundImage = "src\\data\\resources\\background.jpg";
+
     // Constructor
-    public BoardGui() throws IOException {
+    public BoardGuiTest() throws IOException {
         boardPanel = new BoardPanel();
         headerPanel = new HeaderPanel(this, boardPanel);
         add(headerPanel, BorderLayout.PAGE_START);
@@ -63,13 +58,22 @@ public class BoardGui extends JFrame {
         getGameSettingsConfig();
     }
 
+    public void paint(Graphics g) {
+        super.paint(g);
+        try {
+            g.drawImage(ImageIO.read(new File(backgroundImage)), 0, 60, null);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     // Paints the board
     public static void scanNewImage() throws IOException, AWTException {
         Rectangle selectedRegion = getSelectedRegionConfig();
         MinesweeperAI minesweeperAI = new MinesweeperAI(HeaderPanel.getTfRow(), HeaderPanel.getTfCol(), HeaderPanel.getMineCount(), new AdvancedAlgo());
         Tile[][] board = minesweeperAI.scanBoardImage(selectedRegion, new PixelTileAnalyzer());
         boardPanel.setTileSize();
-        boardPanel.paintBoard(board);
+        boardPanel.paintBoard(boardPanel.getGraphics(), board);
         if (cbAutomateClick.isSelected()) {
             minesweeperAI.clickMineTiles(true);
             minesweeperAI.clickSafeTiles(true);
@@ -88,7 +92,7 @@ public class BoardGui extends JFrame {
             minesweeperAI = new MinesweeperAI(HeaderPanel.getTfRow(), HeaderPanel.getTfCol(), HeaderPanel.getMineCount(), new AdvancedAlgo());
             Tile[][] board = minesweeperAI.scanBoardImage(selectedRegion, new PixelTileAnalyzer());
             boardPanel.setTileSize();
-            boardPanel.paintBoard(board);
+            boardPanel.paintBoard(boardPanel.getGraphics(), board);
             minesweeperAI.clickMineTiles(true);
             minesweeperAI.clickSafeTiles(true);
             if (minesweeperAI.getSafeTiles().isEmpty()) {
@@ -101,42 +105,11 @@ public class BoardGui extends JFrame {
 
     //Selecting the board
     public static void selectRegion() {
-        Rectangle selectedRegion = new Rectangle();
-        SwingUtilities.invokeLater(() -> {
-            try {
-                new DrawRegionOnScreen(selectedRegion).setVisible(true);
-            } catch (AWTException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        new Thread(() -> {
-            try {
-                Thread.sleep(60000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-
-            System.out.println(selectedRegion);
-            try {
-                setSelectedRegionConfig(selectedRegion);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }).start();
-    }
-
-    private static void setSelectedRegionConfig(Rectangle selectedRegion) throws IOException {
-        IniFileHandler iniFileHandler = new IniFileWriter("src\\data\\configSelectedRegion.ini");
-        int x = (int) selectedRegion.getX();
-        int y = (int) selectedRegion.getY();
-        int width = (int) selectedRegion.getWidth();
-        int height = (int) selectedRegion.getHeight();
-        iniFileHandler.setProperty("x", String.valueOf(x));
-        iniFileHandler.setProperty("y", String.valueOf(y));
-        iniFileHandler.setProperty("width", String.valueOf(width));
-        iniFileHandler.setProperty("height", String.valueOf(height));
-        iniFileHandler.processFile();
+        try {
+            new DrawRegionOnScreen("src\\data\\configSelectedRegion.ini").setVisible(true);
+        } catch (AWTException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static Rectangle getSelectedRegionConfig() throws IOException {
@@ -189,6 +162,7 @@ class BoardPanel extends JPanel {
     public BoardPanel() {
         setPreferredSize(new Dimension(30 * 25 - 10, 16 * 33));
         this.tileSize = (int) Math.min(getPreferredSize().getHeight() / getTfCol(), getPreferredSize().getWidth() / getTfRow());
+        System.out.println("TEST:" + tileSize);
         resources = new HashMap<>();
         try {
             for (String filename : IMAGES_NAME) {
@@ -201,16 +175,14 @@ class BoardPanel extends JPanel {
         }
     }
 
-    private void paintBackground() throws IOException {
-        super.paint(getGraphics());
+    private void paintBackground(Graphics g) throws IOException {
         Image backgroundImage = ImageIO.read(new File("src\\data\\resources\\background.jpg"));
-        getGraphics().drawImage(backgroundImage, 0, 0, null);
+        g.drawImage(backgroundImage, 0, 0, null);
     }
 
     // CREATING THE BOARD
-    public void paintBoard(Tile[][] board) throws IOException {
-        super.paintComponent(getGraphics());
-        paintBackground();
+    public void paintBoard(Graphics g, Tile[][] board) throws IOException {
+        paintBackground(g);
         double mineTile;
         double averageProbability = 0;
         int row = 0;
@@ -220,7 +192,7 @@ class BoardPanel extends JPanel {
                 mineTile = tile.getProbability();
                 averageProbability += mineTile;
                 Block state = tile.getState();
-                paintComponent(resources.get(state.toString()), row, col, (state == Block.CLOSED ? mineTile : -1));
+                paintComponent(g, resources.get(state.toString()), row, col, (state == Block.CLOSED ? mineTile : -1));
                 row += tileSize;
             }
             row = 0;
@@ -230,7 +202,7 @@ class BoardPanel extends JPanel {
     }
 
     // PRINTS EACH CELL OF THE BOARD
-    public void paintComponent(BufferedImage image, int x, int y, double mineTile) {
+    public void paintComponent(Graphics g, BufferedImage image, int x, int y, double mineTile) {
         Color col = new Color(255, 255, 255);
 
         if (mineTile >= 1.0) {
@@ -250,19 +222,22 @@ class BoardPanel extends JPanel {
         RescaleOp tintOp = new RescaleOp(scales, offsets, null);
 
         BufferedImage tintedImage = tintOp.filter(image, null);
-        getGraphics().drawImage(tintedImage, x, y, x + tileSize, y + tileSize, 0, 0, 200, 200, null);
+        g.drawImage(tintedImage, x, y, x + tileSize, y + tileSize, 0, 0, 200, 200, null);
     }
 
     // Tile size setter
     public void setTileSize() {
         tileSize = (int) Math.min(getSize().getHeight() / getTfCol(), getSize().getWidth() / getTfRow());
+        System.out.println(tileSize);
     }
 }
+
+
 
 // The header GUI
 class HeaderPanel extends JPanel implements ActionListener {
 
-    BoardGui boardGui;
+    BoardGuiTest BoardGuiTest;
     BoardPanel boardPanel;
     static TextField tfRow = new TextField("0", 3);
     static TextField tfCol = new TextField("0", 3);
@@ -273,8 +248,8 @@ class HeaderPanel extends JPanel implements ActionListener {
     Button btnSelectRegion;
 
     // Very confusing constructor
-    public HeaderPanel(BoardGui boardGui, BoardPanel boardPanel) {
-        this.boardGui = boardGui;
+    public HeaderPanel(BoardGuiTest BoardGuiTest, BoardPanel boardPanel) {
+        this.BoardGuiTest = BoardGuiTest;
         this.boardPanel = boardPanel;
         this.setMinimumSize(new Dimension(1000, 100));
 
@@ -320,14 +295,14 @@ class HeaderPanel extends JPanel implements ActionListener {
             } else {
                 if (e.getActionCommand().equals("Scan")) {
                     System.out.println("Scanning additional pylons");
-                    BoardGui.setGameSettingsConfig();
-                    BoardGui.scanNewImage();
+                    BoardGuiTest.setGameSettingsConfig();
+                    BoardGuiTest.scanNewImage();
                 }
                 if (e.getActionCommand().equals("Solve")) {
-                    BoardGui.automateAll();
+                    BoardGuiTest.automateAll();
                 }
                 if (e.getActionCommand().equals("Select Region")) {
-                    BoardGui.selectRegion();
+                    BoardGuiTest.selectRegion();
                 }
             }
         } catch (Exception exception) {
