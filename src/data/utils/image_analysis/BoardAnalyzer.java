@@ -12,7 +12,7 @@ public class BoardAnalyzer extends ImageAnalyzer {
     private final TileAnalyzer tileAnalyzer;
     private final Tile[][] board;
     private final int rows, cols, tileHeight, tileWidth;
-    private int knownMines, emptyTiles, openedTiles, tileCounter;
+    private int knownMines, flaggedMines, emptyTiles, openedTiles, tileCounter;
     public static boolean SAVE_TILE_IMAGE = true;
     public static final String DIRECTORY_PATH = "src\\data\\temp\\";
     public static final int TILE_OFFSET = 0;
@@ -32,7 +32,7 @@ public class BoardAnalyzer extends ImageAnalyzer {
     }
 
     private void initTileStatistics() {
-        knownMines = emptyTiles = openedTiles = tileCounter = 0;
+        knownMines = flaggedMines = emptyTiles = openedTiles = tileCounter = 0;
     }
 
     public Tile[][] analyzeBoardImage() {
@@ -76,6 +76,9 @@ public class BoardAnalyzer extends ImageAnalyzer {
         if (state == Block.FLAG || state == Block.MINE) {
             knownMines++;
         }
+        if (state == Block.FLAG) {
+            flaggedMines++;
+        }
         if (state == Block.EMPTY) {
             emptyTiles++;
         }
@@ -102,5 +105,9 @@ public class BoardAnalyzer extends ImageAnalyzer {
 
     public int getOpenedTiles() {
         return openedTiles;
+    }
+
+    public int getFlaggedMines() {
+        return flaggedMines;
     }
 }

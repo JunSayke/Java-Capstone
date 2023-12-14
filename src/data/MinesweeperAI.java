@@ -20,11 +20,10 @@ public class MinesweeperAI {
     public static boolean SAVE_BOARD_IMAGE = true;
     public static String DIRECTORY_PATH = "src\\data\\temp\\";
 
-    public MinesweeperAI(int rows, int cols, int totalMines, MinesweeperSolver minesweeperSolver) {
+    public MinesweeperAI(int rows, int cols, int totalMines) {
         this.rows = rows;
         this.cols = cols;
         this.totalMines = totalMines;
-        this.minesweeperSolver = minesweeperSolver;
         safeTiles = new HashSet<>();
         mineTiles = new HashSet<>();
     }
@@ -38,11 +37,24 @@ public class MinesweeperAI {
         if (boardAnalyzer.getKnownMines() > totalMines) {
             throw new MineLimitExceededException();
         }
-        Tile[][] board = minesweeperSolver.solveBoard(boardAnalyzer.analyzeBoardImage(), totalMines - boardAnalyzer.getKnownMines());
+        return boardAnalyzer.analyzeBoardImage();
+    }
+
+    public Tile[][] solveBoard(Tile[][] board, MinesweeperSolver minesweeperSolver) {
+        this.minesweeperSolver = minesweeperSolver;
+        Tile[][] solveBoard = minesweeperSolver.solveBoard(board, totalMines - boardAnalyzer.getKnownMines());
         minesweeperSolver.displayBoard(board);
         minesweeperSolver.displayProbability(board);
         updateSafeAndMineTiles(board);
-        return board;
+        return solveBoard;
+    }
+
+    public boolean isSolved() {
+        return boardAnalyzer.getFlaggedMines() == totalMines;
+    }
+
+    public boolean isGameOver() {
+        return boardAnalyzer.getKnownMines() - boardAnalyzer.getFlaggedMines() != 0;
     }
 
     private void updateSafeAndMineTiles(Tile[][] board) {
