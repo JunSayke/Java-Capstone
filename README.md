@@ -1,7 +1,5 @@
 # Java-Capstone
 
-A work in progress finalizing GUI's and Design :)
-
 How to use?
 Run BoardGUI and setup the following inputs indicated.
 
