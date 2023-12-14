@@ -7,7 +7,7 @@
 
 How to use?
 Run BoardGUI and setup the following inputs indicated:
-1. Set up a minesweeper app or website. Preferably mnsw.pro, then Run BoardGUI to open the minesweeper solver app
+1. Set up a minesweeper app or website. Tested on mnsw.pro, then Run BoardGUI to open the minesweeper solver app
 2. Split your screen to have one side the minesweeper app and the other the minesweeper solver app
 3. Set your Rows, Columns, and Total Mines
 4. Click Select Region and draw the minesweeper board as accurately as possible
