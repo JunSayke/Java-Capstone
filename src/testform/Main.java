@@ -1,10 +1,8 @@
-package src;
+package src.testform;
 
 import src.data.MinesweeperAI;
 import src.data.Tile;
 import src.data.enums.Block;
-import src.data.exceptions.InvalidBoardException;
-import src.data.solver.AdvancedAlgo;
 import src.data.utils.DrawRegionOnScreen;
 import src.data.utils.image_analysis.PixelTileAnalyzer;
 import src.data.utils.ini_file_handler.IniFileHandler;
@@ -24,7 +22,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static java.lang.Integer.parseInt;
-import static src.HeaderPanel.*;
 
 public class Main extends JFrame {
     private JTextField tfRow;

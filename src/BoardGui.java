@@ -80,13 +80,7 @@ class BoardPanel extends JPanel {
         }
     }
 
-    private void paintBackground(Graphics g) throws IOException {
-        Image backgroundImage = ImageIO.read(new File("src\\data\\resources\\background.jpg"));
-        g.drawImage(backgroundImage, 0, 0, null);
-    }
-
     public void paintBoard(Graphics g, Tile[][] board) throws IOException {
-        paintBackground(g);
         int row = 0;
         int col = 0;
         for (Tile[] tiles : board) {
