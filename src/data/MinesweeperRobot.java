@@ -6,9 +6,9 @@ import java.awt.image.BufferedImage;
 public class MinesweeperRobot {
     private final Robot robot;
     private final Rectangle selectedRegion;
-    private static final int MOUSE_MOVE_STEPS = 50;
-    private static final int MOUSE_MOVE_DELAY = 2;
-    private static final int MOUSE_DISTANCE_THRESHOLD = 1;
+    public static final int MOUSE_MOVE_STEPS = 50;
+    public static final int MOUSE_MOVE_DELAY = 5;
+    public static final int MOUSE_INTERRUPT_DISTANCE_THRESHOLD = 1;
 
     public MinesweeperRobot(Rectangle selectedRegion) throws AWTException {
         this.selectedRegion = selectedRegion;
@@ -39,7 +39,7 @@ public class MinesweeperRobot {
             Point currentPos = MouseInfo.getPointerInfo().getLocation();
             int deltaX = Math.abs(currentPos.x - mov_x);
             int deltaY = Math.abs(currentPos.y - mov_y);
-            if (deltaX > MOUSE_DISTANCE_THRESHOLD || deltaY > MOUSE_DISTANCE_THRESHOLD) {
+            if (deltaX > MOUSE_INTERRUPT_DISTANCE_THRESHOLD || deltaY > MOUSE_INTERRUPT_DISTANCE_THRESHOLD) {
                 return false;
             }
         }

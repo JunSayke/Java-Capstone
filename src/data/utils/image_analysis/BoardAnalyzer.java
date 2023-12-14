@@ -13,13 +13,13 @@ public class BoardAnalyzer extends ImageAnalyzer {
     private final Tile[][] board;
     private final int rows, cols, tileHeight, tileWidth;
     private int knownMines, emptyTiles, openedTiles, tileCounter;
-
-    private static final int TILE_OFFSET = 0;
-    private static final double EMPTY_TILES_RATIO = 0.5;
+    public static boolean SAVE_TILE_IMAGE = true;
+    public static final String DIRECTORY_PATH = "src\\data\\temp\\";
+    public static final int TILE_OFFSET = 0;
+    public static final double EMPTY_TILES_RATIO = 0.5;
 
     public BoardAnalyzer(BufferedImage image, TileAnalyzer tileAnalyzer, int rows, int cols) {
         super(image);
-        saveImage("src\\data\\temp\\MinesweeperBoard.png");
         this.tileAnalyzer = tileAnalyzer;
         this.rows = rows;
         this.cols = cols;
@@ -66,7 +66,9 @@ public class BoardAnalyzer extends ImageAnalyzer {
                 y * (tileHeight + TILE_OFFSET),
                 tileWidth - TILE_OFFSET,
                 tileHeight - TILE_OFFSET);
-        saveImage(crop, "src\\data\\temp\\tile" + (++tileCounter) + ".png");
+        if (SAVE_TILE_IMAGE) {
+            saveImage(crop,  DIRECTORY_PATH + "tile" + (++tileCounter) + ".png");
+        }
         return crop;
     }
 

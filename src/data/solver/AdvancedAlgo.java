@@ -7,6 +7,7 @@ import src.data.solver.advanced.AnalyzeResult;
 import src.data.solver.advanced.detail.DetailedResults;
 import src.data.solver.advanced.detail.ProbabilityKnowledge;
 import src.data.solver.advanced.factory.AbstractAnalyze;
+import src.data.utils.image_analysis.PixelTileAnalyzer;
 
 import java.util.ArrayList;
 import java.util.Collections;

@@ -7,41 +7,45 @@ import src.data.utils.image_analysis.TileAnalyzer;
 
 import java.awt.*;
 import java.awt.event.InputEvent;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
-// Facade Structural Design Pattern
+// Facade and Bridge Structural Design Pattern
 public class MinesweeperAI {
     private MinesweeperSolver minesweeperSolver;
     private MinesweeperRobot minesweeperRobot;
     private BoardAnalyzer boardAnalyzer;
     private int rows, cols, totalMines;
-    private Tile[][] board;
-    private final ArrayList<Tile> safeTiles, mineTiles;
+    private final Set<Tile> safeTiles, mineTiles;
+    public static boolean SAVE_BOARD_IMAGE = true;
+    public static String DIRECTORY_PATH = "src\\data\\temp\\";
 
     public MinesweeperAI(int rows, int cols, int totalMines, MinesweeperSolver minesweeperSolver) {
         this.rows = rows;
         this.cols = cols;
         this.totalMines = totalMines;
         this.minesweeperSolver = minesweeperSolver;
-        safeTiles = new ArrayList<>();
-        mineTiles = new ArrayList<>();
+        safeTiles = new HashSet<>();
+        mineTiles = new HashSet<>();
     }
 
     public Tile[][] scanBoardImage(Rectangle selectedRegion, TileAnalyzer tileAnalyzer) throws AWTException {
         minesweeperRobot = new MinesweeperRobot(selectedRegion);
         boardAnalyzer = new BoardAnalyzer(minesweeperRobot.captureBoardImage(), tileAnalyzer, rows, cols);
+        if (SAVE_BOARD_IMAGE) {
+            boardAnalyzer.saveImage(DIRECTORY_PATH + "MinesweeperBoard.png");
+        }
         if (boardAnalyzer.getKnownMines() > totalMines) {
             throw new MineLimitExceededException();
         }
-        board = minesweeperSolver.solveBoard(boardAnalyzer.analyzeBoardImage(), totalMines - boardAnalyzer.getKnownMines());
+        Tile[][] board = minesweeperSolver.solveBoard(boardAnalyzer.analyzeBoardImage(), totalMines - boardAnalyzer.getKnownMines());
         minesweeperSolver.displayBoard(board);
         minesweeperSolver.displayProbability(board);
-        updateSafeAndMineTiles();
+        updateSafeAndMineTiles(board);
         return board;
     }
 
-    private void updateSafeAndMineTiles() {
+    private void updateSafeAndMineTiles(Tile[][] board) {
         resetSafeAndMineTiles();
         for (Tile[] rows : board) {
             for (Tile tile : rows) {
@@ -52,11 +56,6 @@ public class MinesweeperAI {
                 }
             }
         }
-    }
-
-    public void shuffleSafeAndMineTiles() {
-        Collections.shuffle(safeTiles);
-        Collections.shuffle(mineTiles);
     }
 
     private void resetSafeAndMineTiles() {
@@ -88,32 +87,24 @@ public class MinesweeperAI {
         }
     }
 
-    public ArrayList<Tile> getSafeTiles() {
-        return safeTiles;
-    }
-
-    public ArrayList<Tile> getMineTiles() {
-        return mineTiles;
-    }
-
     public MinesweeperRobot getMinesweeperRobot() {
         return minesweeperRobot;
-    }
-
-    public BoardAnalyzer getBoardAnalyzer() {
-        return boardAnalyzer;
-    }
-
-    public Tile[][] getBoard() {
-        return board;
     }
 
     public MinesweeperSolver getMinesweeperSolver() {
         return minesweeperSolver;
     }
 
-    public void setMinesweeperSolver(MinesweeperSolver minesweeperSolver) {
-        this.minesweeperSolver = minesweeperSolver;
+    public BoardAnalyzer getBoardAnalyzer() {
+        return boardAnalyzer;
+    }
+
+    public Set<Tile> getSafeTiles() {
+        return safeTiles;
+    }
+
+    public Set<Tile> getMineTiles() {
+        return mineTiles;
     }
 
     public int getRows() {
@@ -142,6 +133,13 @@ public class MinesweeperAI {
 
     @Override
     public String toString() {
-        return "MinesweeperAI{}";
+        return "MinesweeperAI{" +
+                "minesweeperSolver=" + minesweeperSolver +
+                ", minesweeperRobot=" + minesweeperRobot +
+                ", boardAnalyzer=" + boardAnalyzer +
+                ", rows=" + rows +
+                ", cols=" + cols +
+                ", totalMines=" + totalMines +
+                '}';
     }
 }

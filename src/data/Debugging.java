@@ -40,7 +40,7 @@ import java.util.Arrays;
 
 public class Debugging {
     public static void main(String[] args) throws AWTException, IOException {
-//        IniFileHandler fileHandler = new IniFileWriter("src\\data\\config.ini");
+//        IniFileHandler fileHandler = new IniFileWriter("src\\data\\configSelectedRegion.ini");
 //        fileHandler.setProperty("SelectedRegion", "x", "224");
 //        fileHandler.setProperty("SelectedRegion", "y", "273");
 //        fileHandler.setProperty("SelectedRegion", "width", "512");
@@ -51,7 +51,7 @@ public class Debugging {
 //        fileHandler.setProperty("Configuration", "automateClicks", "true");
 //        fileHandler.processFile();
 
-//        IniFileHandler fileHandler = new IniFileReader("src\\data\\config.ini");
+//        IniFileHandler fileHandler = new IniFileReader("src\\data\\configSelectedRegion.ini");
 //        fileHandler.processFile();
 //        System.out.println(fileHandler.getSection("SelectedRegion"));
         selectRegion();

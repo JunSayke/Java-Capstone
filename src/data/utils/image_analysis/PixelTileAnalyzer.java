@@ -10,19 +10,7 @@ import java.util.List;
 public class PixelTileAnalyzer implements TileAnalyzer {
     private ArrayList<Pixels> foundPixels;
     private ImageAnalyzer imageAnalyzer;
-    private static final int IMAGE_TOLERANCE = 10;
-
-    // Singleton Structural Pattern Design
-    private static PixelTileAnalyzer pixelTileAnalyzer = null;
-    public static PixelTileAnalyzer getInstance() {
-        if (pixelTileAnalyzer == null) {
-            pixelTileAnalyzer = new PixelTileAnalyzer();
-        }
-        return pixelTileAnalyzer;
-    }
-
-    private PixelTileAnalyzer() {
-    }
+    private static final int IMAGE_TOLERANCE = 20;
 
     @Override
     public Block analyzeTileImage(BufferedImage image) {
@@ -121,5 +109,4 @@ public class PixelTileAnalyzer implements TileAnalyzer {
 //        Pixels[] expectedPixels = {Pixels.CYAN};
 //        return foundPixels.containsAll(List.of(expectedPixels));
 //    }
-
 }

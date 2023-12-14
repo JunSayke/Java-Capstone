@@ -32,7 +32,12 @@ public abstract class IniFileHandler {
         return (sectionProperties != null) ? sectionProperties.get(key) : null;
     }
 
+    public Map<String, Map<String, String>> getContent() {
+        return sections;
+    }
+
     public Map<String, String> getSection(String section) {
         return sections.get(section);
     }
+
 }
