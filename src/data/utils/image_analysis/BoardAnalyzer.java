@@ -14,8 +14,8 @@ public class BoardAnalyzer extends ImageAnalyzer {
     private final int rows, cols, tileHeight, tileWidth;
     private int knownMines, flaggedMines, emptyTiles, openedTiles, tileCounter;
     public static boolean SAVE_TILE_IMAGE = true;
-    public static final String DIRECTORY_PATH = "src\\data\\temp\\";
-    public static final int TILE_OFFSET = 0;
+    public static String DIRECTORY_PATH = "src\\data\\temp\\";
+    public static int TILE_OFFSET = 0;
     public static final double EMPTY_TILES_RATIO = 0.5;
 
     public BoardAnalyzer(BufferedImage image, TileAnalyzer tileAnalyzer, int rows, int cols) {
@@ -23,10 +23,8 @@ public class BoardAnalyzer extends ImageAnalyzer {
         this.tileAnalyzer = tileAnalyzer;
         this.rows = rows;
         this.cols = cols;
-        System.out.println(((double) getHeight() / (double) rows) + " " + (double) (getWidth() / cols));
         tileHeight =  Math.ceilDiv(getHeight(), rows);
         tileWidth = Math.ceilDiv(getWidth(), cols);
-//        System.out.println(tileHeight + " " + tileWidth + " " + getHeight() + " " + getWidth());
         board = new Tile[rows][cols];
         initTileStatistics();
     }

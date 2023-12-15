@@ -3,6 +3,7 @@ package src.data;
 import src.data.enums.Block;
 import src.data.exceptions.MineLimitExceededException;
 import src.data.utils.image_analysis.BoardAnalyzer;
+import src.data.utils.image_analysis.PixelTileAnalyzer;
 import src.data.utils.image_analysis.TileAnalyzer;
 
 import java.awt.*;
@@ -97,6 +98,51 @@ public class MinesweeperAI {
             }
             minesweeperRobot.clickTile(tile, boardAnalyzer.getTileHeight(), boardAnalyzer.getTileWidth(), InputEvent.BUTTON3_DOWN_MASK);
         }
+    }
+
+    public void setMouseMoveSteps(int steps) {
+        MinesweeperRobot.MOUSE_MOVE_STEPS = steps;
+    }
+
+    public void setMouseMoveDelay(int delay) {
+        MinesweeperRobot.MOUSE_MOVE_DELAY = delay;
+    }
+
+    public void setPixelTolerance(int tolerance) {
+        PixelTileAnalyzer.PIXEL_TOLERANCE = tolerance;
+    }
+
+    public void setTileOffset(int offset) {
+        BoardAnalyzer.TILE_OFFSET = offset;
+    }
+
+    public void setSaveBoardImage(boolean toggle) {
+        SAVE_BOARD_IMAGE = toggle;
+    }
+
+    public void setSaveTileImage(boolean toggle) {
+        BoardAnalyzer.SAVE_TILE_IMAGE = toggle;
+    }
+
+    public void setDirectoryPath(String directoryPath) {
+        DIRECTORY_PATH = directoryPath;
+        BoardAnalyzer.DIRECTORY_PATH = directoryPath;
+    }
+
+    public int getKnownMines() {
+        return boardAnalyzer.getKnownMines();
+    }
+
+    public int getFlaggedMines() {
+        return boardAnalyzer.getFlaggedMines();
+    }
+
+    public int getOpenedTiles() {
+        return boardAnalyzer.getOpenedTiles();
+    }
+
+    public int getEmptyTiles() {
+        return boardAnalyzer.getEmptyTiles();
     }
 
     public MinesweeperRobot getMinesweeperRobot() {

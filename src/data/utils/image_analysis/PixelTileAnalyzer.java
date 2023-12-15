@@ -10,7 +10,7 @@ import java.util.List;
 public class PixelTileAnalyzer implements TileAnalyzer {
     private ArrayList<Pixels> foundPixels;
     private ImageAnalyzer imageAnalyzer;
-    private static final int IMAGE_TOLERANCE = 20;
+    public static int PIXEL_TOLERANCE = 40;
 
     @Override
     public Block analyzeTileImage(BufferedImage image) {
@@ -22,7 +22,7 @@ public class PixelTileAnalyzer implements TileAnalyzer {
 
     private void identifyPixels() {
         for (Pixels pixel : Pixels.values()) {
-            if (imageAnalyzer.pixelSearch(pixel.getValue(), IMAGE_TOLERANCE) != null) {
+            if (imageAnalyzer.pixelSearch(pixel.getValue(), PIXEL_TOLERANCE) != null) {
                 foundPixels.add(pixel);
             }
         }

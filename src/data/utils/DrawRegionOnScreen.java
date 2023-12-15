@@ -17,7 +17,7 @@ public class DrawRegionOnScreen extends JFrame {
 
     public final IniFileHandler iniFileHandler;
 
-    public DrawRegionOnScreen(String filepath) throws AWTException {
+    public DrawRegionOnScreen(String filepath) {
         selectedRegion = new Rectangle();
         iniFileHandler = new IniFileWriter(filepath);
         setUndecorated(true);
@@ -43,17 +43,18 @@ public class DrawRegionOnScreen extends JFrame {
                 }
                 selectedRegion.add(e.getPoint());
                 repaint();
-                int x = (int) selectedRegion.getX();
-                int y = (int) selectedRegion.getY();
-                int width = (int) selectedRegion.getWidth();
-                int height = (int) selectedRegion.getHeight();
-                iniFileHandler.setProperty("x", String.valueOf(x));
-                iniFileHandler.setProperty("y", String.valueOf(y));
-                iniFileHandler.setProperty("width", String.valueOf(width));
-                iniFileHandler.setProperty("height", String.valueOf(height));
                 try {
+                    int x = (int) selectedRegion.getX();
+                    int y = (int) selectedRegion.getY();
+                    int width = (int) selectedRegion.getWidth();
+                    int height = (int) selectedRegion.getHeight();
+                    iniFileHandler.setProperty("x", String.valueOf(x));
+                    iniFileHandler.setProperty("y", String.valueOf(y));
+                    iniFileHandler.setProperty("width", String.valueOf(width));
+                    iniFileHandler.setProperty("height", String.valueOf(height));
                     iniFileHandler.processFile();
                 } catch (IOException ex) {
+                    JOptionPane.showMessageDialog(null,"Failed to set configSelectedRegion.ini!", "Error", JOptionPane.ERROR_MESSAGE);
                     throw new RuntimeException(ex);
                 }
                 dispose();

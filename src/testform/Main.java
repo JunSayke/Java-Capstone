@@ -82,11 +82,7 @@ public class Main extends JFrame {
     }
 
     public void selectRegion() {
-        try {
-            new DrawRegionOnScreen("src\\data\\configSelectedRegion.ini").setVisible(true);
-        } catch (AWTException e) {
-            throw new RuntimeException(e);
-        }
+        new DrawRegionOnScreen("src\\data\\configSelectedRegion.ini").setVisible(true);
     }
 
     public void automateAll() throws IOException, AWTException {

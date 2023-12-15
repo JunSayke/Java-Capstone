@@ -18,13 +18,12 @@ import java.awt.image.RescaleOp;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.InputMismatchException;
 import java.util.Map;
 
 import static java.lang.Integer.parseInt;
 
 public class BoardGui extends JFrame {
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
         BoardGui jf = new BoardGui();
         jf.setVisible(true);
         jf.setLocationRelativeTo(null);
@@ -35,10 +34,11 @@ public class BoardGui extends JFrame {
     static boolean IS_AUTOMATING = false;
     public static String DIRECTORY_PATH = "src\\data\\resources\\";
     public final static String BACKGROUND_IMAGE = "src\\data\\resources\\background.jpg";
+    public final static String CONFIG_OTHER = "src\\data\\configOther.ini";
     public final static String CONFIG_GAME_SETTINGS = "src\\data\\configGameSettings.ini";
     public final static String CONFIG_SELECTED_REGION = "src\\data\\configSelectedRegion.ini";
 
-    public BoardGui() throws IOException {
+    public BoardGui() {
         BoardPanel boardPanel = new BoardPanel();
         JPanel headerPanel = new HeaderPanel(boardPanel);
         add(headerPanel, BorderLayout.PAGE_START);
@@ -76,7 +76,7 @@ class BoardPanel extends JPanel {
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
-            JOptionPane.showMessageDialog(null, "Image not found!");
+            JOptionPane.showMessageDialog(null, "Image not found!", "Warning", JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -138,7 +138,7 @@ class HeaderPanel extends JPanel {
     private final JCheckBox cbAutomateClick;
     private final MinesweeperAI minesweeperAI;
 
-    public HeaderPanel(BoardPanel boardPanel) throws IOException {
+    public HeaderPanel(BoardPanel boardPanel) {
         this.boardPanel = boardPanel;
 
         setMinimumSize(new Dimension(1000, 100));
@@ -148,6 +148,7 @@ class HeaderPanel extends JPanel {
         tfTotalMines = new TextField("40", 3);
 
         minesweeperAI = new MinesweeperAI(getRow(), getCol(), getMineCount());
+        getOtherConfig();
 
         cbAutomateClick = new JCheckBox("Toggle Auto-Click");
         Button btnScan = new Button("Scan Board");
@@ -193,11 +194,7 @@ class HeaderPanel extends JPanel {
     }
 
     public void selectRegion() {
-        try {
-            new DrawRegionOnScreen(src.BoardGui.CONFIG_SELECTED_REGION).setVisible(true);
-        } catch (AWTException e) {
-            throw new RuntimeException(e);
-        }
+        new DrawRegionOnScreen(src.BoardGui.CONFIG_SELECTED_REGION).setVisible(true);
     }
 
     public boolean validateInputs() {
@@ -207,7 +204,7 @@ class HeaderPanel extends JPanel {
             int cols = Integer.parseInt(tfCol.getText());
             int mines = Integer.parseInt(tfTotalMines.getText());
             if (rows < 0 || cols < 0 || mines < 0) {
-                throw new InputMismatchException();
+                throw new IllegalArgumentException();
             }
         } catch (Exception e) {
             System.err.println(e.getMessage());
@@ -237,46 +234,83 @@ class HeaderPanel extends JPanel {
             if (minesweeperAI.getSafeTiles().isEmpty()) {
                 break;
             }
-        } while (minesweeperAI.getBoardAnalyzer().getKnownMines() < getMineCount());
+        } while (minesweeperAI.getKnownMines() < getMineCount());
         BoardGui.IS_AUTOMATING = false;
-        JOptionPane.showMessageDialog(null, "Ikay tiwas!");
+        JOptionPane.showMessageDialog(null, "Ikay tiwas!", "Notice", JOptionPane.INFORMATION_MESSAGE);
     }
 
-    private Rectangle getSelectedRegionConfig() throws IOException {
-        IniFileHandler iniFileHandler = new IniFileReader(src.BoardGui.CONFIG_SELECTED_REGION);
-        iniFileHandler.processFile();
-        int x = Integer.parseInt(iniFileHandler.getProperty("x"));
-        int y = Integer.parseInt(iniFileHandler.getProperty("y"));
-        int width = Integer.parseInt(iniFileHandler.getProperty("width"));
-        int height = Integer.parseInt(iniFileHandler.getProperty("height"));
-        Rectangle selectedRegion = new Rectangle(x, y, width, height);
-        System.out.println(selectedRegion);
+    private Rectangle getSelectedRegionConfig() {
+        Rectangle selectedRegion = null;
+        try {
+            IniFileHandler iniFileHandler = new IniFileReader(src.BoardGui.CONFIG_SELECTED_REGION);
+            iniFileHandler.processFile();
+            int x = Integer.parseInt(iniFileHandler.getProperty("x"));
+            int y = Integer.parseInt(iniFileHandler.getProperty("y"));
+            int width = Integer.parseInt(iniFileHandler.getProperty("width"));
+            int height = Integer.parseInt(iniFileHandler.getProperty("height"));
+            selectedRegion = new Rectangle(x, y, width, height);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,"Failed to read configSelectedRegion.ini!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
         return selectedRegion;
     }
 
-    private void setGameSettingsConfig() throws IOException {
-        IniFileHandler iniFileHandler = new IniFileWriter(src.BoardGui.CONFIG_GAME_SETTINGS);
-        String rows = tfRow.getText();
-        String cols = tfCol.getText();
-        String totalMines = tfTotalMines.getText();
-        String automateClick;
-        if (cbAutomateClick.isSelected()) automateClick = "true";
-        else automateClick = "false";
+    private void setGameSettingsConfig() {
+        try {
+            IniFileHandler iniFileHandler = new IniFileWriter(src.BoardGui.CONFIG_GAME_SETTINGS);
+            String rows = tfRow.getText();
+            String cols = tfCol.getText();
+            String totalMines = tfTotalMines.getText();
+            String automateClick;
+            if (cbAutomateClick.isSelected()) automateClick = "true";
+            else automateClick = "false";
 
-        iniFileHandler.setProperty("automateClick", automateClick);
-        iniFileHandler.setProperty("rows", rows);
-        iniFileHandler.setProperty("cols", cols);
-        iniFileHandler.setProperty("totalMines", totalMines);
-        iniFileHandler.processFile();
+            iniFileHandler.setProperty("automateClick", automateClick);
+            iniFileHandler.setProperty("rows", rows);
+            iniFileHandler.setProperty("cols", cols);
+            iniFileHandler.setProperty("totalMines", totalMines);
+            iniFileHandler.processFile();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,"Failed to set configGameSettings.ini!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
-    private void getGameSettingsConfig() throws IOException {
-        IniFileHandler iniFileHandler = new IniFileReader(src.BoardGui.CONFIG_GAME_SETTINGS);
-        iniFileHandler.processFile();
-        cbAutomateClick.setSelected(Boolean.parseBoolean(iniFileHandler.getProperty("automateClicks")));
-        tfRow.setText(iniFileHandler.getProperty("rows"));
-        tfCol.setText(iniFileHandler.getProperty("cols"));
-        tfTotalMines.setText(iniFileHandler.getProperty("totalMines"));
+    private void getGameSettingsConfig() {
+        try {
+            IniFileHandler iniFileHandler = new IniFileReader(src.BoardGui.CONFIG_GAME_SETTINGS);
+            iniFileHandler.processFile();
+            cbAutomateClick.setSelected(Boolean.parseBoolean(iniFileHandler.getProperty("automateClicks")));
+            tfRow.setText(iniFileHandler.getProperty("rows"));
+            tfCol.setText(iniFileHandler.getProperty("cols"));
+            tfTotalMines.setText(iniFileHandler.getProperty("totalMines"));
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,"Failed to read configGameSettings.ini!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+
+    }
+
+    private void getOtherConfig() {
+        try {
+            IniFileHandler iniFileHandler = new IniFileReader(BoardGui.CONFIG_OTHER);
+            iniFileHandler.processFile();
+            int mouseMoveSteps = Integer.parseInt(iniFileHandler.getProperty("mouseMoveSteps"));
+            int mouseMoveDelay = Integer.parseInt(iniFileHandler.getProperty("mouseMoveDelay"));
+            int pixelTolerance = Integer.parseInt(iniFileHandler.getProperty("pixelTolerance"));
+            int tileOffset = Integer.parseInt(iniFileHandler.getProperty("tileOffset"));
+            boolean saveTileImage = Boolean.parseBoolean(iniFileHandler.getProperty("saveTileImage"));
+            boolean saveBoardImage = Boolean.parseBoolean(iniFileHandler.getProperty("saveBoardImage"));
+            String directoryPath = iniFileHandler.getProperty("directoryPath");
+
+            minesweeperAI.setMouseMoveSteps(mouseMoveSteps);
+            minesweeperAI.setMouseMoveDelay(mouseMoveDelay);
+            minesweeperAI.setPixelTolerance(pixelTolerance);
+            minesweeperAI.setTileOffset(tileOffset);
+            minesweeperAI.setSaveTileImage(saveTileImage);
+            minesweeperAI.setSaveBoardImage(saveBoardImage);
+            minesweeperAI.setDirectoryPath(directoryPath);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null,"Failed to read configOther.ini!", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void scanNewImage() throws IOException, AWTException {
@@ -308,12 +342,12 @@ class HeaderPanel extends JPanel {
 
     private boolean isSolvedOrGameOver() {
         if (minesweeperAI.isSolved()) {
-            JOptionPane.showMessageDialog(null, "Plus points na ka!");
+            JOptionPane.showMessageDialog(null, "Plus points na ka!", "Notice", JOptionPane.INFORMATION_MESSAGE);
             BoardGui.IS_AUTOMATING = false;
             return true;
         }
         if (minesweeperAI.isGameOver()) {
-            JOptionPane.showMessageDialog(null, "Naa pay lain?");
+            JOptionPane.showMessageDialog(null, "Naa pay lain?", "Notice", JOptionPane.INFORMATION_MESSAGE);
             BoardGui.IS_AUTOMATING = false;
             return true;
         }

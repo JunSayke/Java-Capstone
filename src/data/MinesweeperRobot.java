@@ -6,8 +6,8 @@ import java.awt.image.BufferedImage;
 public class MinesweeperRobot {
     private final Robot robot;
     private final Rectangle selectedRegion;
-    public static final int MOUSE_MOVE_STEPS = 25;
-    public static final int MOUSE_MOVE_DELAY = 5;
+    public static int MOUSE_MOVE_STEPS = 5;
+    public static int MOUSE_MOVE_DELAY = 5;
     public static final int MOUSE_INTERRUPT_DISTANCE_THRESHOLD = 1;
 
     public MinesweeperRobot(Rectangle selectedRegion) throws AWTException {
