@@ -28,8 +28,8 @@ Legend:
 
 Structural Design Pattern Used:
 *  Facade - Minesweeper AI
-*  Bridge - Minesweeper Solver and Tile Analyzer to Minesweeper AI
-
+*  Bridge - Minesweeper Solver to Minesweeper AI and Tile Analyzer to Board Analyzer
+  
 Minesweeper Solver Algorithm Used:
 *  Advanced - https://github.com/Zomis/Minesweeper-Analyze
 
