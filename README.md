@@ -3,11 +3,11 @@
 - Jian Lev C. Olamit
 - Ranz Matheu M. Lumayno
 - Shayne Marie B. Angus
+  
 # Minesweeper Solver
-
-How to use?
+How to use? Tested on mnsw.pro and minesweeper.online
 Run BoardGUI and setup the following inputs indicated:
-1. Set up a minesweeper app or website. Tested on mnsw.pro, then Run BoardGUI to open the minesweeper solver app
+1. Set up a minesweeper app or website. Run BoardGUI to open the minesweeper solver app
 2. Split your screen to have one side the minesweeper app and the other the minesweeper solver app
 3. Set your Rows, Columns, and Total Mines
 4. Click Select Region and draw the minesweeper board as accurately as possible
@@ -28,9 +28,14 @@ Legend:
 
 Structural Design Pattern Used:
 *  Facade - Minesweeper AI
-*  Bridge - Minesweeper Solver to Minesweeper AI and Tile Analyzer to Board Analyzer
-  
+*  Bridge -
+      - Minesweeper Solver to Minesweeper AI (maybe)
+      - Tile Analyzer to Board Analyzer
+
 Minesweeper Solver Algorithm Used:
 *  Advanced - https://github.com/Zomis/Minesweeper-Analyze
+
+# UML Class Diagram
+![MinesweeperSolverUML](https://github.com/JunSayke/Java-Capstone/assets/142708326/2b514a31-7569-4340-a1f0-157d50a66def)
 
 Shoutout to Sir Serato
