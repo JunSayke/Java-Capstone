@@ -6,6 +6,7 @@
   
 # Minesweeper Solver
 How to use? Tested on mnsw.pro and minesweeper.online
+
 Run BoardGUI and setup the following inputs indicated:
 1. Set up a minesweeper app or website. Run BoardGUI to open the minesweeper solver app
 2. Split your screen to have one side the minesweeper app and the other the minesweeper solver app
