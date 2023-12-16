@@ -29,14 +29,12 @@ Legend:
 
 Structural Design Pattern Used:
 *  Facade - Minesweeper AI
-*  Bridge -
-      - Minesweeper Solver to Minesweeper AI (maybe)
-      - Tile Analyzer to Board Analyzer
+*  Bridge - Tile Analyzer to Board Analyzer
 
 Minesweeper Solver Algorithm Used:
 *  Advanced - https://github.com/Zomis/Minesweeper-Analyze
 
 # UML Class Diagram
-![MinesweeperSolverUML](https://github.com/JunSayke/Java-Capstone/assets/142708326/9539ec83-b787-4954-b679-f208d47215ba)
+![MinesweeperSolverUML](https://github.com/JunSayke/Java-Capstone/assets/142708326/c98e6bc7-a9ea-4ce1-8359-31ae648807c5)
 
 Shoutout to Sir Serato
