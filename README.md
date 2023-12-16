@@ -36,6 +36,6 @@ Minesweeper Solver Algorithm Used:
 *  Advanced - https://github.com/Zomis/Minesweeper-Analyze
 
 # UML Class Diagram
-![MinesweeperSolverUML](https://github.com/JunSayke/Java-Capstone/assets/142708326/2b514a31-7569-4340-a1f0-157d50a66def)
+![MinesweeperSolverUML](https://github.com/JunSayke/Java-Capstone/assets/142708326/9539ec83-b787-4954-b679-f208d47215ba)
 
 Shoutout to Sir Serato
